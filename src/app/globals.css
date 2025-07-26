@@ -30,6 +30,37 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
+  .theme-mint {
+    --primary: 160 60% 45%;
+    --accent: 150 70% 40%;
+  }
+
+  .theme-rose {
+    --primary: 340 82% 60%;
+    --accent: 345 90% 70%;
+  }
+
+  .theme-violet {
+    --primary: 260 70% 65%;
+    --accent: 270 80% 70%;
+  }
+
+  .theme-amber {
+    --primary: 35 91% 55%;
+    --accent: 45 95% 55%;
+  }
+
+  .theme-teal {
+    --primary: 180 80% 40%;
+    --accent: 170 80% 45%;
+  }
+
+  .theme-cyan {
+    --primary: 190 85% 50%;
+    --accent: 200 90% 55%;
+  }
+
   .dark {
     --background: 224 71% 4%;
     --foreground: 0 0% 98%;

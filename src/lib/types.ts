@@ -18,4 +18,5 @@ export type Progress = {
 export type Settings = {
   questionsPerSet: number;
   theme: 'light' | 'dark' | 'system';
+  colorTheme: string;
 };

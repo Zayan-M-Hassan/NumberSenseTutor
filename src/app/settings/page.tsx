@@ -4,9 +4,22 @@ import { useTheme } from 'next-themes';
 import { useSettings } from '@/hooks/use-settings';
 import { useProgress } from '@/hooks/use-progress';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +32,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { Slider } from '@/components/ui/slider';
 
 export default function SettingsPage() {
   const { settings, saveSettings } = useSettings();
@@ -41,30 +55,27 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="font-headline">Practice</CardTitle>
-            <CardDescription>
-              Customize your practice sessions.
-            </CardDescription>
+            <CardDescription>Customize your practice sessions.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="questions-per-set">Questions per set</Label>
-                <Select
-                  value={settings.questionsPerSet.toString()}
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="questions-per-set">Questions per set</Label>
+                  <span className="text-sm text-muted-foreground font-medium">
+                    {settings.questionsPerSet}
+                  </span>
+                </div>
+                <Slider
+                  id="questions-per-set"
+                  min={5}
+                  max={100}
+                  step={5}
+                  value={[settings.questionsPerSet]}
                   onValueChange={(value) =>
-                    saveSettings({ questionsPerSet: parseInt(value, 10) })
+                    saveSettings({ questionsPerSet: value[0] })
                   }
-                >
-                  <SelectTrigger id="questions-per-set" className="w-[180px]">
-                    <SelectValue placeholder="Select number" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5 questions</SelectItem>
-                    <SelectItem value="10">10 questions</SelectItem>
-                    <SelectItem value="15">15 questions</SelectItem>
-                    <SelectItem value="20">20 questions</SelectItem>
-                  </SelectContent>
-                </Select>
+                />
               </div>
             </div>
           </CardContent>
@@ -73,17 +84,39 @@ export default function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="font-headline">Appearance</CardTitle>
-            <CardDescription>
-              Adjust how the app looks.
-            </CardDescription>
+            <CardDescription>Adjust how the app looks.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="theme">Theme</Label>
+              <Label htmlFor="color-theme">Color Theme</Label>
+              <Select
+                value={settings.colorTheme}
+                onValueChange={(value) => {
+                  saveSettings({ colorTheme: value });
+                }}
+              >
+                <SelectTrigger id="color-theme" className="w-[180px]">
+                  <SelectValue placeholder="Select theme" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="theme-default">Default</SelectItem>
+                  <SelectItem value="theme-mint">Mint</SelectItem>
+                  <SelectItem value="theme-rose">Rose</SelectItem>
+                  <SelectItem value="theme-violet">Violet</SelectItem>
+                  <SelectItem value="theme-amber">Amber</SelectItem>
+                  <SelectItem value="theme-teal">Teal</SelectItem>
+                  <SelectItem value="theme-cyan">Cyan</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="theme">Mode</Label>
               <Select
                 value={settings.theme}
                 onValueChange={(value) => {
-                  saveSettings({ theme: value as 'light' | 'dark' | 'system' });
+                  saveSettings({
+                    theme: value as 'light' | 'dark' | 'system',
+                  });
                   setTheme(value as 'light' | 'dark' | 'system');
                 }}
               >
@@ -102,37 +135,42 @@ export default function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline text-destructive">Danger Zone</CardTitle>
+            <CardTitle className="font-headline text-destructive">
+              Danger Zone
+            </CardTitle>
             <CardDescription>
               These actions are irreversible. Please proceed with caution.
             </CardDescription>
           </CardHeader>
           <CardContent>
-             <div className="flex items-center justify-between">
-                <div className="pr-4">
-                    <p className="font-medium">Clear All Progress</p>
-                    <p className="text-sm text-muted-foreground">This will permanently delete all your practice history and scores.</p>
-                </div>
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive">Clear Progress</Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete all your
-                        practice data from this device.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleClearProgress}>
-                        Continue
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+            <div className="flex items-center justify-between">
+              <div className="pr-4">
+                <p className="font-medium">Clear All Progress</p>
+                <p className="text-sm text-muted-foreground">
+                  This will permanently delete all your practice history and
+                  scores.
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">Clear Progress</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      all your practice data from this device.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleClearProgress}>
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </CardContent>
         </Card>
