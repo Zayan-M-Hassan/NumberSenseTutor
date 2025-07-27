@@ -26,7 +26,7 @@ const getStatus = (progress: TopicProgress) => {
     return {
       label: 'In Progress',
       Icon: Pencil,
-      variant: 'secondary',
+      variant: 'inProgress',
     } as const;
   }
   return {
