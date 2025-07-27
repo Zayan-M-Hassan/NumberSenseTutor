@@ -21,15 +21,10 @@ import { useToast } from '@/hooks/use-toast';
 
 type Status = 'idle' | 'correct' | 'incorrect';
 
-export default function PracticePage({ params: paramsProp }: { params: { topicId: string } }) {
+export default function PracticePage({ params }: { params: { topicId: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  // Using `use` is not correct here for this version. The error is a warning.
-  // The page props are not promises in client components.
-  // The warning is likely a bug or misinterpretation in the Next.js dev overlay for this version.
-  // The correct way is to just access it.
-  // To get rid of the warning, I will destructure it outside of the useMemo.
-  const { topicId } = paramsProp;
+  const { topicId } = use(Promise.resolve(params));
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
