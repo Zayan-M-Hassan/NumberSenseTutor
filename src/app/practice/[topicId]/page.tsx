@@ -24,7 +24,7 @@ type Status = 'idle' | 'correct' | 'incorrect';
 export default function PracticePage({ params }: { params: { topicId: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { topicId } = use(Promise.resolve(params));
+  const { topicId } = use(params);
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
