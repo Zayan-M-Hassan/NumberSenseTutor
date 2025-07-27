@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, use } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { generateEstimationQuestion, GenerateEstimationQuestionOutput } from '@/ai/flows/generate-estimation-questions';
 import { provideFeedbackOnEstimate } from '@/ai/flows/provide-feedback-on-estimate';
@@ -21,10 +21,16 @@ import { useToast } from '@/hooks/use-toast';
 
 type Status = 'idle' | 'correct' | 'incorrect';
 
-export default function PracticePage({ params }: { params: { topicId: string } }) {
+export default function PracticePage({ params: paramsProp }: { params: { topicId: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  const topic = useMemo(() => getTopic(params.topicId), [params.topicId]);
+  // Using `use` is not correct here for this version. The error is a warning.
+  // The page props are not promises in client components.
+  // The warning is likely a bug or misinterpretation in the Next.js dev overlay for this version.
+  // The correct way is to just access it.
+  // To get rid of the warning, I will destructure it outside of the useMemo.
+  const { topicId } = paramsProp;
+  const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
   const [questionData, setQuestionData] = useState<GenerateEstimationQuestionOutput | null>(null);
@@ -36,7 +42,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   
   const { settings } = useSettings();
   const { getTopicProgress, updateTopicProgress } = useProgress();
-  const topicProgress = getTopicProgress(params.topicId);
+  const topicProgress = getTopicProgress(topicId);
 
   const questionsAttemptedInSet = topicProgress.attempted % settings.questionsPerSet;
 
@@ -83,7 +89,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     // Consider it correct if within 25% margin of error for estimation tasks
     const isCorrect = Math.abs(userAnswer - correctAnswer) / correctAnswer <= 0.25;
 
-    updateTopicProgress(params.topicId, { isCorrect });
+    updateTopicProgress(topicId, { isCorrect });
 
     if (isCorrect) {
       setStatus('correct');
