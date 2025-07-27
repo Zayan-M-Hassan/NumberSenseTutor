@@ -1,3 +1,4 @@
+
 export type Topic = {
   id: string;
   name: string;
@@ -5,9 +6,18 @@ export type Topic = {
   exampleQuestions: string[];
 };
 
+export type TopicProgressSet = {
+  questionsAttempted: number;
+  questionsCorrect: number;
+  totalTime: number;
+}
+
 export type TopicProgress = {
-  attempted: number;
-  correct: number;
+  overall: {
+    attempted: number;
+    correct: number;
+  };
+  currentSet: TopicProgressSet,
   completedSets: number;
 };
 

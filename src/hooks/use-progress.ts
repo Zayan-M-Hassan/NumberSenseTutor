@@ -1,10 +1,17 @@
+
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { Progress, TopicProgress } from '@/lib/types';
+import type { Progress, TopicProgress, TopicProgressSet } from '@/lib/types';
 import { useSettings } from './use-settings';
 
 const STORAGE_KEY = 'number-sense-tutor-progress';
+
+const createDefaultTopicProgress = (): TopicProgress => ({
+  overall: { attempted: 0, correct: 0 },
+  currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
+  completedSets: 0,
+});
 
 const DEFAULT_PROGRESS: Progress = {
   topics: {},
@@ -18,7 +25,23 @@ export const useProgress = () => {
     try {
       const item = window.localStorage.getItem(STORAGE_KEY);
       if (item) {
-        setProgress(JSON.parse(item));
+        // Basic migration for old structure
+        const parsed = JSON.parse(item);
+        if (parsed.topics && Object.values(parsed.topics).length > 0) {
+            const firstTopic = Object.values(parsed.topics)[0] as any;
+            if(firstTopic.hasOwnProperty('attempted')) {
+                // This is the old structure, migrate it.
+                Object.keys(parsed.topics).forEach(topicId => {
+                    const oldTopic = parsed.topics[topicId];
+                    parsed.topics[topicId] = {
+                        overall: { attempted: oldTopic.attempted, correct: oldTopic.correct },
+                        currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
+                        completedSets: oldTopic.completedSets || 0
+                    };
+                });
+            }
+        }
+        setProgress(parsed);
       } else {
         setProgress(DEFAULT_PROGRESS);
       }
@@ -37,26 +60,48 @@ export const useProgress = () => {
     }
   }, []);
 
-  const updateTopicProgress = useCallback((topicId: string, { isCorrect }: { isCorrect: boolean }) => {
+  const startNewSet = useCallback((topicId: string) => {
     if (!progress) return;
+    
+    const topicProgress = progress.topics[topicId] || createDefaultTopicProgress();
 
-    const currentTopicProgress = progress.topics[topicId] || { attempted: 0, correct: 0, completedSets: 0 };
-    
-    const newAttempted = currentTopicProgress.attempted + 1;
-    const newCorrect = currentTopicProgress.correct + (isCorrect ? 1 : 0);
-    
-    let newCompletedSets = currentTopicProgress.completedSets;
-    if (newAttempted > 0 && newAttempted % settings.questionsPerSet === 0) {
-        // Only increment if we are landing on a multiple of questionsPerSet
-        if((currentTopicProgress.attempted % settings.questionsPerSet) !== 0) {
-            newCompletedSets += 1;
+    const newProgress: Progress = {
+        ...progress,
+        topics: {
+            ...progress.topics,
+            [topicId]: {
+                ...topicProgress,
+                currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
+            }
         }
+    };
+    saveProgress(newProgress);
+  }, [progress, saveProgress]);
+
+  const updateTopicProgress = useCallback((topicId: string, { isCorrect, timeTaken }: { isCorrect: boolean, timeTaken: number }): TopicProgress => {
+    if (!progress) return createDefaultTopicProgress();
+
+    const currentTopicProgress = progress.topics[topicId] || createDefaultTopicProgress();
+    
+    const newCurrentSet: TopicProgressSet = {
+        questionsAttempted: currentTopicProgress.currentSet.questionsAttempted + 1,
+        questionsCorrect: currentTopicProgress.currentSet.questionsCorrect + (isCorrect ? 1 : 0),
+        totalTime: currentTopicProgress.currentSet.totalTime + timeTaken,
+    };
+
+    let newCompletedSets = currentTopicProgress.completedSets;
+    if (newCurrentSet.questionsAttempted === settings.questionsPerSet) {
+        newCompletedSets += 1;
     }
 
     const updatedTopicProgress: TopicProgress = {
-      attempted: newAttempted,
-      correct: newCorrect,
-      completedSets: newCompletedSets,
+        ...currentTopicProgress,
+        overall: {
+            attempted: currentTopicProgress.overall.attempted + 1,
+            correct: currentTopicProgress.overall.correct + (isCorrect ? 1 : 0),
+        },
+        currentSet: newCurrentSet,
+        completedSets: newCompletedSets
     };
 
     const newProgress: Progress = {
@@ -67,10 +112,11 @@ export const useProgress = () => {
       },
     };
     saveProgress(newProgress);
+    return updatedTopicProgress;
   }, [progress, saveProgress, settings.questionsPerSet]);
 
   const getTopicProgress = useCallback((topicId: string): TopicProgress => {
-    return progress?.topics[topicId] || { attempted: 0, correct: 0, completedSets: 0 };
+    return progress?.topics[topicId] || createDefaultTopicProgress();
   }, [progress]);
   
   const clearProgress = useCallback(() => {
@@ -82,5 +128,6 @@ export const useProgress = () => {
     getTopicProgress,
     updateTopicProgress,
     clearProgress,
+    startNewSet,
   };
 };

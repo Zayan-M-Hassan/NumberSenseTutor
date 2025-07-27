@@ -15,11 +15,13 @@ import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Lightbulb, Loader2 } from 'lucide-react';
+import { ArrowLeft, Lightbulb, Loader2, TimerIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { StatsCard } from '@/components/stats-card';
 
 type Status = 'idle' | 'correct' | 'incorrect';
+type View = 'practice' | 'stats';
 
 export default function PracticePage({ params }: { params: { topicId: string } }) {
   const router = useRouter();
@@ -34,24 +36,39 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [status, setStatus] = useState<Status>('idle');
+  const [view, setView] = useState<View>('practice');
+  const [time, setTime] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
   
   const { settings } = useSettings();
-  const { getTopicProgress, updateTopicProgress } = useProgress();
+  const { getTopicProgress, updateTopicProgress, startNewSet } = useProgress();
   const topicProgress = getTopicProgress(topicId);
 
-  const questionsAttemptedInSet = topicProgress.attempted % settings.questionsPerSet;
+  const questionsAttemptedInSet = topicProgress.currentSet.questionsAttempted;
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (timerRunning) {
+      interval = setInterval(() => {
+        setTime(prevTime => prevTime + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timerRunning]);
 
   const fetchQuestion = useCallback(async () => {
     if (!topic) return;
     setLoading(true);
     setStatus('idle');
     setUserEstimate('');
+    setTime(0);
     try {
       const data = await generateEstimationQuestion({
         topic: topic.name,
         exampleQuestions: topic.exampleQuestions.join('\n'),
       });
       setQuestionData(data);
+      setTimerRunning(true);
     } catch (error) {
       console.error('Failed to generate question:', error);
       toast({
@@ -69,32 +86,40 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     if (!topic) {
       notFound();
     } else {
+      startNewSet(topicId);
       fetchQuestion();
     }
-  }, [topic, fetchQuestion]);
+  }, [topic, fetchQuestion, topicId, startNewSet]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userEstimate || !questionData) return;
+    setTimerRunning(false);
 
     setIsSubmitting(true);
     const userAnswer = parseFloat(userEstimate.replace(/,/g, ''));
     const correctAnswer = questionData.answer;
 
-    // Consider it correct if within 25% margin of error for estimation tasks
     const isCorrect = Math.abs(userAnswer - correctAnswer) / correctAnswer <= 0.25;
 
-    updateTopicProgress(topicId, { isCorrect });
+    const newProgress = updateTopicProgress(topicId, { isCorrect, timeTaken: time });
+
+    const setFinished = newProgress.currentSet.questionsAttempted >= settings.questionsPerSet;
 
     if (isCorrect) {
       setStatus('correct');
-      toast({
-        title: 'Correct!',
-        description: 'Great estimation! Loading next question...',
-      });
-      setTimeout(() => {
-        fetchQuestion();
-      }, 1500);
+      if (setFinished) {
+        toast({ title: 'Set Complete!', description: 'Great job! Here are your stats.' });
+        setView('stats');
+      } else {
+        toast({
+          title: 'Correct!',
+          description: 'Great estimation! Loading next question...',
+        });
+        setTimeout(() => {
+          fetchQuestion();
+        }, 1500);
+      }
     } else {
       setStatus('incorrect');
       try {
@@ -116,8 +141,23 @@ export default function PracticePage({ params }: { params: { topicId: string } }
 
   const handleNextFromModal = () => {
     setShowFeedbackModal(false);
-    fetchQuestion();
+    const setFinished = topicProgress.currentSet.questionsAttempted >= settings.questionsPerSet;
+    if (setFinished) {
+      setView('stats');
+    } else {
+      fetchQuestion();
+    }
   };
+
+  const handleStartNewSet = () => {
+    setView('practice');
+    startNewSet(topicId);
+    fetchQuestion();
+  }
+
+  const handleReturnToTopics = () => {
+    router.push('/');
+  }
   
   const inputBorderColor = {
     idle: 'border-input',
@@ -129,6 +169,17 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     return null;
   }
 
+  if (view === 'stats') {
+    return (
+      <StatsCard 
+        topic={topic} 
+        stats={topicProgress.currentSet}
+        onStartNewSet={handleStartNewSet}
+        onReturnToTopics={handleReturnToTopics}
+      />
+    )
+  }
+
   return (
     <div className="container max-w-2xl mx-auto py-10">
       <Button variant="ghost" onClick={() => router.push('/')} className="mb-4">
@@ -138,7 +189,13 @@ export default function PracticePage({ params }: { params: { topicId: string } }
 
       <Card className="overflow-hidden transition-all duration-300">
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">{topic.name} Practice</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="font-headline text-2xl">{topic.name} Practice</CardTitle>
+            <div className="flex items-center text-lg font-semibold text-muted-foreground">
+              <TimerIcon className="mr-2 h-5 w-5" />
+              <span>{time}s</span>
+            </div>
+          </div>
           <CardDescription>Question {questionsAttemptedInSet + 1} of {settings.questionsPerSet}</CardDescription>
           <Progress value={((questionsAttemptedInSet + 1) / settings.questionsPerSet) * 100} className="mt-2" />
         </CardHeader>
@@ -202,7 +259,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           </div>
           <DialogFooter>
             <Button onClick={handleNextFromModal} className="w-full">
-              Next Question
+              {topicProgress.currentSet.questionsAttempted >= settings.questionsPerSet ? 'View Stats' : 'Next Question'}
             </Button>
           </DialogFooter>
         </DialogContent>

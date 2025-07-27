@@ -22,7 +22,7 @@ const getStatus = (progress: TopicProgress) => {
       variant: 'default',
     } as const;
   }
-  if (progress.attempted > 0) {
+  if (progress.overall.attempted > 0) {
     return {
       label: 'In Progress',
       Icon: Pencil,
@@ -44,7 +44,7 @@ export function TopicList({ topics }: TopicListProps) {
       {topics.map((topic) => {
         const progress = getTopicProgress(topic.id);
         const status = getStatus(progress);
-        const accuracy = progress.attempted > 0 ? Math.round((progress.correct / progress.attempted) * 100) : 0;
+        const accuracy = progress.overall.attempted > 0 ? Math.round((progress.overall.correct / progress.overall.attempted) * 100) : 0;
 
         return (
           <Card key={topic.id} className="flex flex-col hover:shadow-lg transition-shadow duration-300">
@@ -59,14 +59,14 @@ export function TopicList({ topics }: TopicListProps) {
               <CardDescription>{topic.description}</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-              {progress.attempted > 0 ? (
+              {progress.overall.attempted > 0 ? (
                 <div className="space-y-2">
                     <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>Accuracy</span>
+                        <span>Overall Accuracy</span>
                         <span>{accuracy}%</span>
                     </div>
                   <Progress value={accuracy} className="h-2" />
-                  <p className="text-xs text-muted-foreground text-center pt-1">{progress.correct} / {progress.attempted} correct</p>
+                  <p className="text-xs text-muted-foreground text-center pt-1">{progress.overall.correct} / {progress.overall.attempted} correct</p>
                 </div>
               ) : (
                 <div className="text-sm text-muted-foreground text-center py-6">
@@ -77,7 +77,7 @@ export function TopicList({ topics }: TopicListProps) {
             <CardFooter>
               <Button asChild className="w-full">
                 <Link href={`/practice/${topic.id}`}>
-                  {progress.attempted > 0 ? 'Continue Practice' : 'Start Practice'}
+                  {progress.overall.attempted > 0 ? 'Continue Practice' : 'Start Practice'}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
