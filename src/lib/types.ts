@@ -1,4 +1,6 @@
 
+import type { GenerateEstimationQuestionOutput } from "./ai/flows/generate-estimation-questions";
+
 export type Topic = {
   id: string;
   name: string;
@@ -33,6 +35,7 @@ export type TopicProgress = {
   };
   currentSet: TopicProgressSet,
   completedSets: number;
+  currentQuestion: GenerateEstimationQuestionOutput | null;
 };
 
 export type Progress = {

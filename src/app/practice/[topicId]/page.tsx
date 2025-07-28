@@ -29,7 +29,6 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
-  const [questionData, setQuestionData] = useState<GenerateEstimationQuestionOutput | null>(null);
   const [userAnswer, setUserAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -40,14 +39,15 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const [timerRunning, setTimerRunning] = useState(false);
   
   const { settings } = useSettings();
-  const { getTopicProgress, updateTopicProgress, startNewSet } = useProgress();
+  const { getTopicProgress, updateTopicProgress, startNewSet, setCurrentQuestion } = useProgress();
   
   const topicProgress = getTopicProgress(topicId);
+  const questionData = topicProgress.currentQuestion;
 
   const questionsAttemptedInSet = topicProgress.currentSet.questionsAttempted;
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout | undefined;
     if (timerRunning) {
       interval = setInterval(() => {
         setTime(prevTime => prevTime + 1);
@@ -67,7 +67,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
         topic: topic.name,
         exampleQuestions: topic.exampleQuestions.join('\n'),
       });
-      setQuestionData(data);
+      setCurrentQuestion(topicId, data);
       setTimerRunning(true);
     } catch (error) {
       console.error('Failed to generate question:', error);
@@ -80,26 +80,32 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     } finally {
       setLoading(false);
     }
-  }, [topic, router, toast]);
+  }, [topic, router, toast, setCurrentQuestion, topicId]);
 
   useEffect(() => {
     if (!topic) {
       notFound();
       return;
     }
+    
     const currentProgress = getTopicProgress(topicId);
-    if(currentProgress.currentSet.questionsAttempted === 0) {
-      fetchQuestion();
-    } else if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+    if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
       setView('stats');
-    } else {
-      fetchQuestion();
+      return;
     }
-  }, [topicId, fetchQuestion, getTopicProgress, settings.questionsPerSet, topic]);
+
+    if (!currentProgress.currentQuestion) {
+      fetchQuestion();
+    } else {
+      setLoading(false);
+      setTimerRunning(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topicId, topic]);
   
   useEffect(() => {
     const currentProgress = getTopicProgress(topicId);
-    if (currentProgress.currentSet.questionsAttempted === 0 && view === 'practice') {
+    if (currentProgress.currentSet.questionsAttempted === 0 && view === 'practice' && !currentProgress.currentQuestion) {
         startNewSet(topicId);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -222,7 +228,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           <Progress value={((currentProgressForRender.currentSet.questionsAttempted + 1) / settings.questionsPerSet) * 100} className="mt-2" />
         </CardHeader>
         <CardContent className="min-h-[200px]">
-          {loading ? (
+          {loading || !questionData ? (
             <div className="space-y-4">
               <Skeleton className="h-8 w-3/4" />
               <Skeleton className="h-10 w-full" />

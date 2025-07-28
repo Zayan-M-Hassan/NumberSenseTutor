@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Progress, TopicProgress, TopicProgressSet } from '@/lib/types';
 import { useSettings } from './use-settings';
+import type { GenerateEstimationQuestionOutput } from '@/ai/flows/generate-estimation-questions';
 
 const STORAGE_KEY = 'number-sense-tutor-progress';
 
@@ -11,6 +12,7 @@ const createDefaultTopicProgress = (): TopicProgress => ({
   overall: { attempted: 0, correct: 0 },
   currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
   completedSets: 0,
+  currentQuestion: null,
 });
 
 const DEFAULT_PROGRESS: Progress = {
@@ -36,7 +38,8 @@ export const useProgress = () => {
                     parsed.topics[topicId] = {
                         overall: { attempted: oldTopic.attempted, correct: oldTopic.correct },
                         currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
-                        completedSets: oldTopic.completedSets || 0
+                        completedSets: oldTopic.completedSets || 0,
+                        currentQuestion: null,
                     };
                 });
             }
@@ -72,6 +75,25 @@ export const useProgress = () => {
             [topicId]: {
                 ...topicProgress,
                 currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
+                currentQuestion: null,
+            }
+        }
+    };
+    saveProgress(newProgress);
+  }, [progress, saveProgress]);
+
+  const setCurrentQuestion = useCallback((topicId: string, question: GenerateEstimationQuestionOutput) => {
+    if (!progress) return;
+    
+    const topicProgress = progress.topics[topicId] || createDefaultTopicProgress();
+
+    const newProgress: Progress = {
+        ...progress,
+        topics: {
+            ...progress.topics,
+            [topicId]: {
+                ...topicProgress,
+                currentQuestion: question,
             }
         }
     };
@@ -101,7 +123,8 @@ export const useProgress = () => {
             correct: currentTopicProgress.overall.correct + (isCorrect ? 1 : 0),
         },
         currentSet: newCurrentSet,
-        completedSets: newCompletedSets
+        completedSets: newCompletedSets,
+        currentQuestion: null,
     };
 
     const newProgress: Progress = {
@@ -129,5 +152,6 @@ export const useProgress = () => {
     updateTopicProgress,
     clearProgress,
     startNewSet,
+    setCurrentQuestion
   };
 };
