@@ -1,11 +1,15 @@
 
-import type { GenerateEstimationQuestionOutput } from "./ai/flows/generate-estimation-questions";
+export type Question = {
+  text: string;
+  answer: number;
+  hasErrorRange?: boolean;
+};
 
 export type Topic = {
   id: string;
   name: string;
   description: string;
-  exampleQuestions: string[];
+  questions: Question[];
 };
 
 export type MathTopic = {
@@ -35,7 +39,8 @@ export type TopicProgress = {
   };
   currentSet: TopicProgressSet,
   completedSets: number;
-  currentQuestion: GenerateEstimationQuestionOutput | null;
+  currentQuestion: Question | null;
+  questionIndex: number;
 };
 
 export type Progress = {

@@ -3,7 +3,6 @@
 
 import { useState, useEffect, useCallback, useMemo, use } from 'react';
 import { notFound, useRouter } from 'next/navigation';
-import { generateEstimationQuestion, GenerateEstimationQuestionOutput } from '@/ai/flows/generate-estimation-questions';
 import { getTopic } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
 import { useSettings } from '@/hooks/use-settings';
@@ -45,8 +44,6 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const topicProgress = getTopicProgress(topicId);
   const questionData = topicProgress.currentQuestion;
 
-  const questionsAttemptedInSet = topicProgress.currentSet.questionsAttempted;
-
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
     if (timerRunning) {
@@ -67,17 +64,17 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     setTime(0);
 
     try {
-      const data = await generateEstimationQuestion({
-        topic: topic.name,
-        exampleQuestions: topic.exampleQuestions.join('\n'),
-      });
-      setCurrentQuestion(topicId, data);
+      const progress = getTopicProgress(topicId);
+      const questionIndex = progress.questionIndex % topic.questions.length;
+      const question = topic.questions[questionIndex];
+
+      setCurrentQuestion(topicId, question, questionIndex);
       setTimerRunning(true);
     } catch (error) {
-      console.error('Failed to generate question:', error);
+      console.error('Failed to get question:', error);
       toast({
         title: 'Error',
-        description: 'Could not generate a new question. Please try again later.',
+        description: 'Could not load the question. Please try again later.',
         variant: 'destructive',
       });
       router.push('/');
@@ -85,29 +82,32 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       setLoading(false);
       setIsFetchingQuestion(false);
     }
-  }, [topic, isFetchingQuestion, setCurrentQuestion, topicId, toast, router]);
+  }, [topic, isFetchingQuestion, setCurrentQuestion, topicId, toast, router, getTopicProgress]);
 
   useEffect(() => {
-    if (!topic) {
-        notFound();
-        return;
-    }
-
-    const currentProgress = getTopicProgress(topicId);
-
-    if (view === 'practice' && currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-        setView('stats');
-        setLoading(false);
-        return;
-    }
-    
-    if (view === 'practice' && !currentProgress.currentQuestion && !isFetchingQuestion) {
-        fetchQuestion();
-    } else if (currentProgress.currentQuestion) {
-        setLoading(false);
-        setTimerRunning(true);
-    }
-}, [topicId, view, topic, getTopicProgress, settings.questionsPerSet, notFound, fetchQuestion, isFetchingQuestion]);
+      if (!topic) {
+          notFound();
+          return;
+      }
+      
+      const currentProgress = getTopicProgress(topicId);
+      if (view === 'practice' && currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+          setView('stats');
+          setLoading(false);
+          return;
+      }
+      
+      if (view === 'practice' && !currentProgress.currentQuestion && !isFetchingQuestion) {
+          // If we just finished a set, start a new one
+          if(currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+            startNewSet(topicId);
+          }
+          fetchQuestion();
+      } else if (currentProgress.currentQuestion) {
+          setLoading(false);
+          setTimerRunning(true);
+      }
+  }, [topicId, view, topic, getTopicProgress, settings.questionsPerSet, notFound, fetchQuestion, isFetchingQuestion, startNewSet]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -236,7 +236,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
               <div className="space-y-2">
                 <Label htmlFor="question" className="text-xl font-semibold text-foreground">
                   {questionData?.hasErrorRange && <span className="text-destructive mr-1">*</span>}
-                  {questionData?.question}
+                  {questionData?.text}
                 </Label>
               </div>
               <div className="space-y-2">

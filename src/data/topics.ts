@@ -1,4 +1,4 @@
-import type { Topic, MathTopic } from '@/lib/types';
+import type { Topic, MathTopic, Question } from '@/lib/types';
 import topicsData from './math-topics.json';
 
 const topics: MathTopic[] = topicsData;
@@ -8,7 +8,10 @@ export const getTopics = (): Topic[] => {
     id: topic.id,
     name: topic.title,
     description: topic.content,
-    exampleQuestions: topic.questions.map(q => q.text),
+    questions: topic.questions.map(q => ({
+      ...q,
+      answer: Number(q.answer)
+    })),
   }));
 };
 
@@ -20,6 +23,10 @@ export const getTopic = (id: string): Topic | undefined => {
     id: topic.id,
     name: topic.title,
     description: topic.content,
-    exampleQuestions: [topic.generation_guideline],
+    questions: topic.questions.map(q => ({
+      text: q.text,
+      answer: Number(q.answer), // Assuming answer is always a number in the JSON
+      hasErrorRange: q.hasErrorRange,
+    })),
   }
 };
