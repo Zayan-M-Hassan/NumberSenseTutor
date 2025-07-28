@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { Latex } from './ui/latex';
 
 interface TopicListProps {
   topics: Topic[];
@@ -56,7 +57,9 @@ export function TopicList({ topics }: TopicListProps) {
                   {status.label}
                 </Badge>
               </div>
-              <CardDescription>{topic.description}</CardDescription>
+              <CardDescription>
+                <Latex content={topic.description} />
+              </CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
               {progress.overall.attempted > 0 ? (

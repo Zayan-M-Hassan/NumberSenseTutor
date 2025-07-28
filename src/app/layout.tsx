@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import 'katex/dist/katex.min.css';
 import { SettingsProvider } from '@/hooks/use-settings.tsx';
 import { AppBody } from '@/components/app-body';
 
