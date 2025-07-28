@@ -4,7 +4,6 @@
 import { useState, useEffect, useCallback, useMemo, use } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { generateEstimationQuestion, GenerateEstimationQuestionOutput } from '@/ai/flows/generate-estimation-questions';
-import { provideFeedbackOnEstimate } from '@/ai/flows/provide-feedback-on-estimate';
 import { getTopic } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
 import { useSettings } from '@/hooks/use-settings';
@@ -31,7 +30,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   
   const [loading, setLoading] = useState(true);
   const [questionData, setQuestionData] = useState<GenerateEstimationQuestionOutput | null>(null);
-  const [userEstimate, setUserEstimate] = useState('');
+  const [userAnswer, setUserAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -60,7 +59,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     if (!topic) return;
     setLoading(true);
     setStatus('idle');
-    setUserEstimate('');
+    setUserAnswer('');
     setTime(0);
     try {
       const data = await generateEstimationQuestion({
@@ -94,14 +93,15 @@ export default function PracticePage({ params }: { params: { topicId: string } }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userEstimate || !questionData) return;
+    if (!userAnswer || !questionData) return;
     setTimerRunning(false);
 
     setIsSubmitting(true);
-    const userAnswer = parseFloat(userEstimate.replace(/,/g, ''));
+    const userAnswerNumber = parseFloat(userAnswer.replace(/,/g, ''));
     const correctAnswer = questionData.answer;
 
-    const isCorrect = Math.abs(userAnswer - correctAnswer) / correctAnswer <= 0.25;
+    const errorMargin = questionData.hasErrorRange ? 0.25 : 0.01;
+    const isCorrect = Math.abs(userAnswerNumber - correctAnswer) / correctAnswer <= errorMargin;
 
     const newProgress = updateTopicProgress(topicId, { isCorrect, timeTaken: time });
 
@@ -115,7 +115,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       } else {
         toast({
           title: 'Correct!',
-          description: 'Great estimation! Loading next question...',
+          description: 'Great answer! Loading next question...',
         });
         setTimeout(() => {
           fetchQuestion();
@@ -123,19 +123,15 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       }
     } else {
       setStatus('incorrect');
-      try {
-        const feedbackResponse = await provideFeedbackOnEstimate({
-          question: questionData.question,
-          userEstimate: userAnswer,
-          correctAnswer: correctAnswer,
-        });
-        setFeedback(feedbackResponse.feedback);
-        setShowFeedbackModal(true);
-      } catch (error) {
-        console.error('Failed to get feedback:', error);
-        setFeedback('Sorry, we couldn\'t generate detailed feedback right now. The correct answer was ' + correctAnswer.toLocaleString() + '.');
-        setShowFeedbackModal(true);
+      const lowerBound = correctAnswer * (1 - errorMargin);
+      const upperBound = correctAnswer * (1 + errorMargin);
+      
+      let feedbackText = `The correct answer is ${correctAnswer.toLocaleString()}.`;
+      if(questionData.hasErrorRange) {
+        feedbackText = `The correct answer is in the range of ${lowerBound.toLocaleString()} to ${upperBound.toLocaleString()}. The exact answer is ${correctAnswer.toLocaleString()}.`
       }
+      setFeedback(feedbackText);
+      setShowFeedbackModal(true);
     }
     setIsSubmitting(false);
   };
@@ -211,19 +207,20 @@ export default function PracticePage({ params }: { params: { topicId: string } }
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="question" className="text-xl font-semibold text-foreground">
+                  {questionData?.hasErrorRange && <span className="text-destructive">* </span>}
                   {questionData?.question}
                 </Label>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="estimate" className="font-medium">Your Estimate</Label>
+                <Label htmlFor="answer" className="font-medium">Your Answer</Label>
                 <Input
-                  id="estimate"
+                  id="answer"
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9,.]*"
                   placeholder="e.g., 1,200,000"
-                  value={userEstimate}
-                  onChange={(e) => setUserEstimate(e.target.value)}
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
                   disabled={isSubmitting || status === 'correct'}
                   className={cn('text-lg transition-all duration-300', inputBorderColor)}
                 />
@@ -235,11 +232,11 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           <Button
             type="submit"
             onClick={handleSubmit}
-            disabled={isSubmitting || loading || !userEstimate || status === 'correct'}
+            disabled={isSubmitting || loading || !userAnswer || status === 'correct'}
             className="w-full"
           >
             {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {isSubmitting ? 'Checking...' : 'Submit Estimate'}
+            {isSubmitting ? 'Checking...' : 'Submit Answer'}
           </Button>
         </CardFooter>
       </Card>
@@ -249,10 +246,10 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           <DialogHeader>
             <DialogTitle className="flex items-center font-headline">
               <Lightbulb className="mr-2 h-5 w-5 text-accent" />
-              Feedback
+              Incorrect
             </DialogTitle>
             <DialogDescription>
-              Here is some feedback on your estimate.
+              Here is the correct answer.
             </DialogDescription>
           </DialogHeader>
           <div className="prose prose-sm dark:prose-invert max-h-[60vh] overflow-y-auto rounded-md border bg-secondary/50 p-4">

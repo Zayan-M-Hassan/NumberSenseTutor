@@ -23,6 +23,7 @@ export type GenerateEstimationQuestionInput = z.infer<typeof GenerateEstimationQ
 const GenerateEstimationQuestionOutputSchema = z.object({
   question: z.string().describe('The generated estimation question.'),
   answer: z.number().describe('The answer to the estimation question.'),
+  hasErrorRange: z.boolean().describe('Whether the question allows for a range of correct answers.'),
 });
 export type GenerateEstimationQuestionOutput = z.infer<typeof GenerateEstimationQuestionOutputSchema>;
 
@@ -36,16 +37,17 @@ const prompt = ai.definePrompt({
   name: 'generateEstimationQuestionPrompt',
   input: {schema: GenerateEstimationQuestionInputSchema},
   output: {schema: GenerateEstimationQuestionOutputSchema},
-  prompt: `You are an expert in generating numerical estimation questions.
+  prompt: `You are an expert in generating numerical calculation questions.
 
-  Based on the topic and example questions provided, generate a new and unique estimation question.  Also include the answer to the question.
+  Based on the topic and example questions provided, generate a new and unique calculation question. Also include the answer to the question.
 
   Topic: {{{topic}}}
   Example Questions: {{{exampleQuestions}}}
 
-  Make sure your answer is a number. Return the answer and question in JSON format.
+  If the question is very long or difficult and would be suitable for an estimation with an error range, set hasErrorRange to true. Otherwise, set it to false.
+  Make sure your answer is a number. Return the answer, question, and hasErrorRange flag in JSON format.
   Do not include any introductory or concluding remarks, only the JSON.
-  Follow the schema: { \"question\": \"question here\",   \"answer\": answer here}
+  Follow the schema: { \"question\": \"question here\", \"answer\": answer here, \"hasErrorRange\": boolean here }
   `,
 });
 
