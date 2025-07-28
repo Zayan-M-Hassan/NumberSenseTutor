@@ -100,8 +100,13 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     const userAnswerNumber = parseFloat(userAnswer.replace(/,/g, ''));
     const correctAnswer = questionData.answer;
 
-    const errorMargin = questionData.hasErrorRange ? 0.25 : 0.01;
-    const isCorrect = Math.abs(userAnswerNumber - correctAnswer) / correctAnswer <= errorMargin;
+    let isCorrect: boolean;
+    if (questionData.hasErrorRange) {
+      const errorMargin = 0.25;
+      isCorrect = Math.abs(userAnswerNumber - correctAnswer) / correctAnswer <= errorMargin;
+    } else {
+      isCorrect = userAnswerNumber === correctAnswer;
+    }
 
     const newProgress = updateTopicProgress(topicId, { isCorrect, timeTaken: time });
 
@@ -123,6 +128,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       }
     } else {
       setStatus('incorrect');
+      const errorMargin = 0.25;
       const lowerBound = correctAnswer * (1 - errorMargin);
       const upperBound = correctAnswer * (1 + errorMargin);
       
