@@ -17,6 +17,7 @@ import { ArrowLeft, Lightbulb, Loader2, TimerIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { StatsCard } from '@/components/stats-card';
+import { Latex } from '@/components/ui/latex';
 
 type Status = 'idle' | 'correct' | 'incorrect';
 type View = 'practice' | 'stats';
@@ -85,28 +86,24 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   }, [topic, isFetchingQuestion, setCurrentQuestion, topicId, toast, router, getTopicProgress]);
 
   useEffect(() => {
-      if (!topic) {
-          notFound();
-          return;
-      }
-      
-      const currentProgress = getTopicProgress(topicId);
-      if (view === 'practice' && currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-          setView('stats');
-          setLoading(false);
-          return;
-      }
-      
-      if (view === 'practice' && !currentProgress.currentQuestion && !isFetchingQuestion) {
-          // If we just finished a set, start a new one
-          if(currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-            startNewSet(topicId);
-          }
-          fetchQuestion();
-      } else if (currentProgress.currentQuestion) {
-          setLoading(false);
-          setTimerRunning(true);
-      }
+    if (!topic) {
+        notFound();
+        return;
+    }
+
+    const currentProgress = getTopicProgress(topicId);
+
+    if (view === 'practice' && !currentProgress.currentQuestion && !isFetchingQuestion) {
+        if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+             setView('stats');
+             setLoading(false);
+        } else {
+            fetchQuestion();
+        }
+    } else if (currentProgress.currentQuestion) {
+        setLoading(false);
+        setTimerRunning(true);
+    }
   }, [topicId, view, topic, getTopicProgress, settings.questionsPerSet, notFound, fetchQuestion, isFetchingQuestion, startNewSet]);
 
 
@@ -234,10 +231,10 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="question" className="text-xl font-semibold text-foreground">
+                <div className="text-xl font-semibold text-foreground">
                   {questionData?.hasErrorRange && <span className="text-destructive mr-1">*</span>}
-                  {questionData?.text}
-                </Label>
+                  <Latex content={questionData?.text ?? ''} />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="answer" className="font-medium">Your Answer</Label>
