@@ -41,6 +41,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   
   const { settings } = useSettings();
   const { getTopicProgress, updateTopicProgress, startNewSet } = useProgress();
+  // We call getTopicProgress inside the component to ensure it's fresh on each render.
   const topicProgress = getTopicProgress(topicId);
 
   const questionsAttemptedInSet = topicProgress.currentSet.questionsAttempted;
@@ -144,17 +145,18 @@ export default function PracticePage({ params }: { params: { topicId: string } }
 
   const handleNextFromModal = () => {
     setShowFeedbackModal(false);
-    const setFinished = topicProgress.currentSet.questionsAttempted >= settings.questionsPerSet;
+    const currentProgress = getTopicProgress(topicId); // get latest progress
+    const setFinished = currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet;
     if (setFinished) {
       setView('stats');
     } else {
       fetchQuestion();
     }
   };
-
+  
   const handleStartNewSet = () => {
-    setView('practice');
     startNewSet(topicId);
+    setView('practice');
     fetchQuestion();
   }
 
@@ -171,12 +173,15 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   if (!topic) {
     return null;
   }
+  
+  // Get latest progress for rendering
+  const currentProgressForRender = getTopicProgress(topicId);
 
   if (view === 'stats') {
     return (
       <StatsCard 
         topic={topic} 
-        stats={topicProgress.currentSet}
+        stats={currentProgressForRender.currentSet}
         onStartNewSet={handleStartNewSet}
         onReturnToTopics={handleReturnToTopics}
       />
@@ -199,8 +204,8 @@ export default function PracticePage({ params }: { params: { topicId: string } }
               <span>{time}s</span>
             </div>
           </div>
-          <CardDescription>Question {questionsAttemptedInSet + 1} of {settings.questionsPerSet}</CardDescription>
-          <Progress value={(questionsAttemptedInSet / settings.questionsPerSet) * 100} className="mt-2" />
+          <CardDescription>Question {currentProgressForRender.currentSet.questionsAttempted + 1} of {settings.questionsPerSet}</CardDescription>
+          <Progress value={(currentProgressForRender.currentSet.questionsAttempted / settings.questionsPerSet) * 100} className="mt-2" />
         </CardHeader>
         <CardContent className="min-h-[200px]">
           {loading ? (
@@ -213,7 +218,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="question" className="text-xl font-semibold text-foreground">
-                  {questionData?.hasErrorRange && <span className="text-destructive">* </span>}
+                  {questionData?.hasErrorRange && <span className="text-destructive mr-1">*</span>}
                   {questionData?.question}
                 </Label>
               </div>
@@ -267,7 +272,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           </div>
           <DialogFooter>
             <Button onClick={handleNextFromModal} className="w-full">
-              {topicProgress.currentSet.questionsAttempted >= settings.questionsPerSet ? 'View Stats' : 'Next Question'}
+              {getTopicProgress(topicId).currentSet.questionsAttempted >= settings.questionsPerSet ? 'View Stats' : 'Next Question'}
             </Button>
           </DialogFooter>
         </DialogContent>
