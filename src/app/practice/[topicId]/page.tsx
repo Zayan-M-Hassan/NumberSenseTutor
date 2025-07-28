@@ -105,7 +105,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   
   useEffect(() => {
     const currentProgress = getTopicProgress(topicId);
-    if (currentProgress.currentSet.questionsAttempted === 0 && view === 'practice' && !currentProgress.currentQuestion) {
+    if (view === 'practice' && currentProgress.currentSet.questionsAttempted === 0 && !currentProgress.currentQuestion) {
         startNewSet(topicId);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
