@@ -89,31 +89,28 @@ export default function PracticePage({ params }: { params: { topicId: string } }
 
   useEffect(() => {
     if (!topic) {
-      notFound();
-      return;
+        notFound();
+        return;
     }
-  
+
     const currentProgress = getTopicProgress(topicId);
-  
-    if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-      setView('stats');
-      setLoading(false);
-      return;
+
+    // If the set is finished, show stats.
+    if (view === 'practice' && currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+        setView('stats');
+        setLoading(false);
+        return;
     }
-  
-    if (!currentProgress.currentQuestion && !isFetchingQuestion) {
-      // If we are starting a new set and there is no question, fetch one.
-      if (currentProgress.currentSet.questionsAttempted === 0 && !progress.topics[topicId]?.currentQuestion) {
-        startNewSet(topicId, true); // Mark as fetching to prevent loops
-      }
-      fetchQuestion();
+
+    // If we're in practice view and there's no question, fetch one.
+    if (view === 'practice' && !currentProgress.currentQuestion && !isFetchingQuestion) {
+        fetchQuestion();
     } else if (currentProgress.currentQuestion) {
-      // If there's already a question in progress, just show it.
-      setLoading(false);
-      setTimerRunning(true);
+        // If there's already a question in progress, just show it.
+        setLoading(false);
+        setTimerRunning(true);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topicId, topic, isFetchingQuestion, progress.topics[topicId]?.currentQuestion]);
+}, [topicId, view, topic, isFetchingQuestion, fetchQuestion, getTopicProgress, settings.questionsPerSet, notFound]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
