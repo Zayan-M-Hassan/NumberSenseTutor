@@ -200,7 +200,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
             </div>
           </div>
           <CardDescription>Question {questionsAttemptedInSet + 1} of {settings.questionsPerSet}</CardDescription>
-          <Progress value={((questionsAttemptedInSet + 1) / settings.questionsPerSet) * 100} className="mt-2" />
+          <Progress value={(questionsAttemptedInSet / settings.questionsPerSet) * 100} className="mt-2" />
         </CardHeader>
         <CardContent className="min-h-[200px]">
           {loading ? (
