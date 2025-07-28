@@ -63,7 +63,7 @@ export const useProgress = () => {
     }
   }, []);
 
-  const startNewSet = useCallback((topicId: string) => {
+  const startNewSet = useCallback((topicId: string, fetching: boolean = false) => {
     if (!progress) return;
     
     const topicProgress = progress.topics[topicId] || createDefaultTopicProgress();
@@ -75,7 +75,7 @@ export const useProgress = () => {
             [topicId]: {
                 ...topicProgress,
                 currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
-                currentQuestion: null,
+                currentQuestion: fetching ? topicProgress.currentQuestion : null,
             }
         }
     };

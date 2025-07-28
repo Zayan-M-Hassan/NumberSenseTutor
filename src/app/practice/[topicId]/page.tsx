@@ -29,6 +29,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
+  const [isFetchingQuestion, setIsFetchingQuestion] = useState(false);
   const [userAnswer, setUserAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -57,11 +58,14 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   }, [timerRunning]);
 
   const fetchQuestion = useCallback(async () => {
-    if (!topic) return;
+    if (!topic || isFetchingQuestion) return;
+    
+    setIsFetchingQuestion(true);
     setLoading(true);
     setStatus('idle');
     setUserAnswer('');
     setTime(0);
+
     try {
       const data = await generateEstimationQuestion({
         topic: topic.name,
@@ -79,16 +83,16 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       router.push('/');
     } finally {
       setLoading(false);
+      setIsFetchingQuestion(false);
     }
-  }, [topic, router, toast, setCurrentQuestion, topicId]);
+  }, [topic, router, toast, setCurrentQuestion, topicId, isFetchingQuestion]);
 
   useEffect(() => {
     if (!topic) {
       notFound();
       return;
     }
-    // This effect should only run when the component mounts or the topic changes.
-    // It decides whether to show stats, fetch a new question, or resume.
+
     const currentProgress = getTopicProgress(topicId);
     if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
       setView('stats');
@@ -96,20 +100,17 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       return;
     }
 
-    if (!currentProgress.currentQuestion) {
-      // If there's no question, it might be the first time or after a completed question.
-      // Call startNewSet if the set is empty, then fetch.
-      if (currentProgress.currentSet.questionsAttempted === 0) {
-        startNewSet(topicId);
+    if (!currentProgress.currentQuestion && !isFetchingQuestion) {
+      if (currentProgress.currentSet.questionsAttempted === 0 && !progress.topics[topicId]?.currentQuestion) {
+         startNewSet(topicId, true); // Pass true to indicate we're about to fetch
       }
       fetchQuestion();
-    } else {
-      // There is a question in progress, so just resume.
+    } else if (currentProgress.currentQuestion) {
       setLoading(false);
       setTimerRunning(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topicId, topic, progress]); // Depend on progress to re-evaluate when it changes
+  }, [topicId, topic, progress, isFetchingQuestion]); 
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -175,9 +176,9 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   };
   
   const handleStartNewSet = () => {
-    startNewSet(topicId);
+    startNewSet(topicId, false);
     setView('practice');
-    fetchQuestion();
+    // fetchQuestion is called by useEffect
   }
 
   const handleReturnToTopics = () => {
