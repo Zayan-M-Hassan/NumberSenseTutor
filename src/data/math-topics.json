@@ -1,0 +1,191 @@
+
+[
+  {
+    "id": "s1.1",
+    "slug": "foiling-when-multiplying",
+    "title": "FOILing/LIOFing When Multiplying",
+    "content": "<p class=\"mb-4\">A fast multiplication method for two-digit numbers, $ab$ and $cd$, is LIOFing (Last-Inner+Outer-First). This is derived from the algebraic expansion $(10a + b)(10c + d) = 100(ac) + 10(ad + bc) + bd$.</p><ul class=\"list-disc pl-6 space-y-2 mb-4\"><li><strong>Last:</strong> The ones digit is $b \\times d$.</li><li><strong>Inner+Outer:</strong> The tens digit is $(a \\times d) + (b \\times c)$.</li><li><strong>First:</strong> The hundreds digit is $a \\times c$.</li><li>Remember to handle carries at each step. For example, $74 \\times 23$: Last is $4 \\times 3 = 12$ (write 2, carry 1). Inner+Outer is $(7 \\times 3) + (2 \\times 4) + 1_{carry} = 21 + 8 + 1 = 30$ (write 0, carry 3). First is $(7 \\times 2) + 3_{carry} = 14 + 3 = 17$. The result is 1702.</li></ul>",
+    "generation_guideline": "Generate a multiplication problem involving two 2-digit numbers.",
+    "questions": [
+      { "id": 1, "text": "Calculate $95 \\times 30$.", "answer": "2850" },
+      { "id": 2, "text": "Calculate $64 \\times 53$.", "answer": "3392" },
+      { "id": 3, "text": "Calculate $94 \\times 92$.", "answer": "8648" },
+      { "id": 4, "text": "Calculate $137 \\times 32$.", "answer": "4384" },
+      { "id": 5, "text": "Calculate $239 \\times 795$.", "answer": "190005" }
+    ]
+  },
+  {
+    "id": "s1.2.1",
+    "slug": "multiplying-by-11-trick",
+    "title": "Multiplying by 11 Trick",
+    "content": "<p class=\"mb-4\">The 11's trick is a simplified version of the “moving down the line” multiplication method. To multiply a number by 11, you add consecutive digits of the number and record the result, keeping track of any carries.</p><p class=\"mb-4\">For example, to calculate $523 \\times 11$:</p><ul class=\"list-disc pl-6 space-y-2 mb-4\"><li><strong>Ones digit:</strong> 3</li><li><strong>Tens digit:</strong> 2 + 3 = 5</li><li><strong>Hundreds digit:</strong> 5 + 2 = 7</li><li><strong>Thousands digit:</strong> 5</li></ul><p>The result is <strong>5753</strong>. This trick can be extended to multiplication by 111, where you add triples of digits.</p>",
+    "generation_guideline": "Generate a problem that involves multiplying a 2, 3, or 4-digit number by 11.",
+    "questions": [
+      { "id": 1, "text": "Calculate $11 \\times 54$.", "answer": "594" },
+      { "id": 2, "text": "Calculate $11 \\times 72$.", "answer": "792" },
+      { "id": 3, "text": "Calculate $2233 \\div 11$.", "answer": "203" },
+      { "id": 4, "text": "Calculate $33 \\times 1111$.", "answer": "36663" },
+      { "id": 5, "text": "Calculate $32 \\times 64 \\times 16 \\div 48$.", "answer": "682.66", "hasErrorRange": true }
+    ]
+  },
+  {
+    "id": "s1.2.2",
+    "slug": "multiplying-by-101-trick",
+    "title": "Multiplying by 101 Trick",
+    "content": "<p class=\"mb-4\">Similar to the 11's trick, multiplying by 101 involves adding digits that are separated by a gap. When multiplying a number by 101, you immediately write down the last two digits of the number, then sum the gapped digits to find the preceding digits.</p><p class=\"mb-4\">For example, to calculate $438 \\times 101$:</p><ul class=\"list-disc pl-6 space-y-2 mb-4\"><li><strong>Ones/Tens digits:</strong> 38</li><li><strong>Hundreds digit:</strong> 4 + 8 = 12 (Write down 2, carry 1)</li><li><strong>Thousands digit:</strong> 3 + 1 (carry) = 4</li><li><strong>Ten Thousands digit:</strong> 4</li></ul><p>The result is <strong>44238</strong>.</p>",
+    "generation_guideline": "Generate a problem multiplying a 3 or 4-digit number by 101.",
+    "questions": [
+      { "id": 1, "text": "Calculate $1234 \\times 101$.", "answer": "124634" },
+      { "id": 2, "text": "Calculate $369 \\times 101$.", "answer": "37269" },
+      { "id": 3, "text": "Calculate $34845 \\div 101$.", "answer": "345" },
+      { "id": 4, "text": "Calculate $(48 + 53) \\times 151$.", "answer": "15251", "hasErrorRange": true }
+    ]
+  },
+  {
+    "id": "s1.2.3",
+    "slug": "multiplying-by-25-trick",
+    "title": "Multiplying by 25 Trick",
+    "content": "<p class=\"mb-4\">To multiply a number by 25, you can think of 25 as $\\frac{100}{4}$. The strategy is to divide the number by 4 and then multiply by 100 (or move the decimal two places to the right).</p><p class=\"mb-4\">For example, $84 \\times 25 = \\frac{84}{4} \\times 100 = 21 \\times 100 = 2100$.</p><p class=\"mb-4\">Similarly, to divide by 25, you multiply by 4 and move the decimal two places to the left. For example, $415 \\div 25 = \\frac{415 \\times 4}{100} = \\frac{1660}{100} = 16.6$.</p>",
+    "generation_guideline": "Generate a problem involving multiplying or dividing a number (that is a multiple of 4) by 25.",
+    "questions": [
+      { "id": 1, "text": "Calculate $240 \\times 25$.", "answer": "6000" },
+      { "id": 2, "text": "Calculate $64 \\div 25$.", "answer": "2.56" },
+      { "id": 3, "text": "Calculate $616 \\div 25$.", "answer": "24.64" },
+      { "id": 4, "text": "Calculate $97531 \\div 246$.", "answer": "396.46", "hasErrorRange": true },
+      { "id": 5, "text": "Calculate $248 \\times 250 \\times 252$.", "answer": "15624000", "hasErrorRange": true }
+    ]
+  },
+  {
+    "id": "s1.2.4",
+    "slug": "multiplying-by-75-trick",
+    "title": "Multiplying by 75 Trick",
+    "content": "<p class=\"mb-4\">To multiply by 75, you can think of it as $\\frac{3}{4} \\cdot 100$. The strategy is to first divide the number by 4, then multiply by 3, and finally move the decimal two places to the right.</p><p class=\"mb-4\">For example, $76 \\times 75 = \\frac{76 \\cdot 3}{4} \\cdot 100 = 19 \\times 3 \\times 100 = 5700$.</p><p class=\"mb-4\">To divide by 75, multiply by $\\frac{4}{3}$ and divide by 100. For example, $81 \\div 75 = \\frac{81 \\cdot 4}{3 \\cdot 100} = \\frac{27 \\cdot 4}{100} = 1.08$.</p>",
+    "generation_guideline": "Generate a problem involving multiplying a multiple of 4 by 75.",
+    "questions": [
+      { "id": 1, "text": "Calculate $48 \\times 75$.", "answer": "3600" },
+      { "id": 2, "text": "Calculate $66 \\div 75$.", "answer": "0.88" },
+      { "id": 3, "text": "Calculate $96 \\div 75$.", "answer": "1.28" },
+      { "id": 4, "text": "Calculate $7532 \\times 1468$.", "answer": "11057096", "hasErrorRange": true }
+    ]
+  },
+  {
+    "id": "s1.2.6",
+    "slug": "double-and-half-trick",
+    "title": "Double and Half Trick",
+    "content": "<p class=\"mb-4\">This trick involves multiplying by a clever version of 1, specifically $\\frac{2}{2}$. You double one of the numbers in a multiplication problem and halve the other. This is especially useful when one number ends in 5 or is an even number in the teens.</p><ul class=\"list-disc pl-6 space-y-2 mb-4\"><li>$15 \\times 78 = (15 \\times 2) \\times \\frac{78}{2} = 30 \\times 39 = 1170$</li><li>$35 \\times 42 = 70 \\times 21 = 1470$</li><li>$18 \\times 52 = 9 \\times 104 = 936$</li></ul>",
+    "generation_guideline": "Generate a multiplication problem where one number is even and the other ends in 5.",
+    "questions": [
+      { "id": 1, "text": "Calculate $4.8 \\times 15$.", "answer": "72" },
+      { "id": 2, "text": "Calculate $15 \\times 48$.", "answer": "720" },
+      { "id": 3, "text": "Calculate $14 \\times 203$.", "answer": "2842" },
+      { "id": 4, "text": "Calculate $24 \\times 35$.", "answer": "840" }
+    ]
+  },
+  {
+    "id": "s1.2.7",
+    "slug": "multiplying-two-numbers-near-100",
+    "title": "Multiplying Two Numbers Near 100",
+    "content": "<p class=\"mb-4\">This trick simplifies multiplying two numbers that are close to 100 (or 1000, etc.).</p><ul class=\"list-disc pl-6 space-y-2 mb-4\"><li><strong>Both numbers over 100:</strong> For $103 \\times 108$, the last two digits are the product of the differences from 100 ($3 \\times 8 = 24$). The first part of the answer is one number plus the other's difference from 100 ($103+8=111$). Answer: 11124.</li><li><strong>Both numbers under 100:</strong> For $97 \\times 94$, the last two digits are the product of the differences from 100 ($3 \\times 6 = 18$). The first part is one number minus the other's difference from 100 ($97-6=91$). Answer: 9118.</li><li><strong>One over, one under 100:</strong> For $103 \\times 94$, the last two digits are $100 - (3 \\times 6) = 82$. The first part is the larger number, minus the smaller's difference from 100, minus 1 ($103-6-1=96$). Answer: 9682.</li></ul>",
+    "generation_guideline": "Generate a multiplication problem of two numbers that are both close to 100 (e.g., between 90-99 or 101-110).",
+    "questions": [
+      { "id": 1, "text": "Calculate $89 \\times 97$.", "answer": "8633" },
+      { "id": 2, "text": "Calculate $103 \\times 109$.", "answer": "11227" },
+      { "id": 3, "text": "Calculate $102 \\times 108$.", "answer": "11016" },
+      { "id": 4, "text": "Calculate $104 \\times 97$.", "answer": "10088" },
+      { "id": 5, "text": "Calculate $98^2 + 97^2$.", "answer": "19013", "hasErrorRange": true }
+    ]
+  },
+    {
+    "id": "s1.3.6",
+    "slug": "difference-of-squares",
+    "title": "Difference of Squares",
+    "content": "<p class=\"mb-4\">The difference of squares is a fundamental algebraic identity: $x^2 - y^2 = (x - y)(x + y)$. This trick is easily recognizable and simplifies calculations involving the subtraction of two squared numbers.</p><p class=\"mb-4\">For example, to calculate $54^2 - 55^2$, you can apply the formula:</p><p>$(54 - 55)(54 + 55) = (-1)(109) = -109$</p><p>This method is significantly faster than calculating each square individually and then subtracting.</p>",
+    "generation_guideline": "Generate a problem of the form a^2 - b^2 where a and b are two-digit numbers.",
+    "questions": [
+      { "id": 1, "text": "Calculate $73^2 - 72^2$.", "answer": "145" },
+      { "id": 2, "text": "Calculate $36^2 - 34^2$.", "answer": "140" },
+      { "id": 3, "text": "Calculate $57^2 - 58^2$.", "answer": "-115" },
+      { "id": 4, "text": "Calculate $4.7^2 - 3.3^2$.", "answer": "11.2" },
+      { "id": 5, "text": "Calculate $111^2 - 110^2 + 109^2 - 108^2$.", "answer": "438" }
+    ]
+  },
+  {
+    "id": "s2.2.1",
+    "slug": "sum-of-series",
+    "title": "Sum of Series",
+    "content": "<p class=\"mb-4\">Memorizing formulas for the sums of special series is crucial for solving many problems quickly. Here are some of the most common ones:</p><ul class=\"list-disc pl-6 space-y-2 mb-4\"><li><strong>First m Integers:</strong> $\\sum_{n=1}^{m} n = \\frac{m(m+1)}{2}$</li><li><strong>First m Odd Integers:</strong> $\\sum_{n=1}^{m} (2n-1) = m^2$</li><li><strong>First m Even Integers:</strong> $\\sum_{n=1}^{m} 2n = m(m+1)$</li><li><strong>First m Squares:</strong> $\\sum_{n=1}^{m} n^2 = \\frac{m(m+1)(2m+1)}{6}$</li><li><strong>First m Cubes:</strong> $\\sum_{n=1}^{m} n^3 = (\\frac{m(m+1)}{2})^2$</li><li><strong>Infinite Geometric Series:</strong> $\\sum_{n=0}^{\\infty} a_1 d^n = \\frac{a_1}{1-d}$ for $|d| < 1$</li></ul>",
+    "generation_guideline": "Generate a sum of a series of numbers (e.g., consecutive integers, even numbers, odd numbers, squares, or cubes).",
+    "questions": [
+      { "id": 1, "text": "Calculate $2 + 4 + 6 + 8 + \\dots + 22$.", "answer": "132" },
+      { "id": 2, "text": "Calculate $1 + 2 + 3 + 4 + \\dots + 21$.", "answer": "231" },
+      { "id": 3, "text": "Calculate $1 + 3 + 5 + 7 + \\dots + 25$.", "answer": "169" },
+      { "id": 4, "text": "Calculate $1^3 + 2^3 + 3^3 + \\dots + 6^3$.", "answer": "441" },
+      { "id": 5, "text": "Calculate $(1 + 2 + 3 + \\dots + 29)^2$.", "answer": "189225", "hasErrorRange": true }
+    ]
+  },
+  {
+    "id": "s2.2.4",
+    "slug": "number-of-diagonals-of-a-polygon",
+    "title": "Number of Diagonals of a Polygon",
+    "content": "<p class=\"mb-4\">The number of diagonals in a polygon with $n$ vertices (an n-gon) can be calculated with a simple formula. From each of the $n$ vertices, you can draw $(n-3)$ diagonals. Since each diagonal is counted twice with this method (once for each endpoint), the total number of distinct diagonals is:</p><p class=\"text-center font-bold mb-4\">Number of Diagonals = $\\frac{n(n-3)}{2}$</p><p>For example, in a hexagon ($n=6$), the number of diagonals is $\\frac{6(6-3)}{2} = \\frac{6 \\times 3}{2} = 9$.</p>",
+    "generation_guideline": "Ask for the number of diagonals in a polygon with a given number of sides (between 5 and 20).",
+    "questions": [
+      { "id": 1, "text": "How many diagonals does a 5-sided regular polygon have?", "answer": "5" },
+      { "id": 2, "text": "If a regular polygon has 27 distinct diagonals, how many sides does it have?", "answer": "9" },
+      { "id": 3, "text": "How many diagonals does an octagon have?", "answer": "20" },
+      { "id": 4, "text": "How many diagonals does a decagon have?", "answer": "35" }
+    ]
+  },
+  {
+    "id": "s3.1.1",
+    "slug": "gcd-and-lcm",
+    "title": "GCD and LCM",
+    "content": "<p class=\"mb-4\">Finding the Greatest Common Divisor (GCD) and Least Common Multiple (LCM) is a common task.</p><p class=\"mb-4\"><strong>GCD via Euclid's Algorithm:</strong> To find GCD(a, b) with $a < b$, find the remainder when $b$ is divided by $a$, let's call it $r_1$. Now, GCD(a, b) = GCD($r_1$, a). Repeat this process until the remainder is 0. The last non-zero remainder is the GCD. For example, GCD(36, 60) $\\rightarrow$ GCD(24, 36) $\\rightarrow$ GCD(12, 24) = 12.</p><p class=\"mb-4\"><strong>LCM Formula:</strong> Once the GCD is known, the LCM can be found easily using the formula: $LCM(a, b) = \\frac{a \\times b}{GCD(a, b)}$.</p><p>For example, $LCM(36, 60) = \\frac{36 \\times 60}{12} = 3 \\times 60 = 180$.</p>",
+    "generation_guideline": "Ask for the GCD or LCM of two 2-digit numbers.",
+    "questions": [
+      { "id": 1, "text": "What is the GCF of 35 and 63?", "answer": "7" },
+      { "id": 2, "text": "What is the LCM of 64 and 20?", "answer": "320" },
+      { "id": 3, "text": "What is the LCM of 27 and 36?", "answer": "108" },
+      { "id": 4, "text": "What is the LCM of 57 and 95?", "answer": "285" },
+      { "id": 5, "text": "What is the GCF of 132 and 187?", "answer": "11" }
+    ]
+  },
+  {
+    "id": "s3.4",
+    "slug": "modular-arithmetic",
+    "title": "Modular Arithmetic",
+    "content": "<p class=\"mb-4\">Modular arithmetic deals with remainders. The expression $a \\equiv r \\pmod{b}$ means that when $a$ is divided by $b$, the remainder is $r$. A key property is that you can perform algebra on the remainders themselves.</p><p class=\"mb-4\">This is the basis for divisibility rules. For example, since $10 \\equiv 1 \\pmod{9}$, any power of 10 is also congruent to 1. Therefore, a number $n = d_k 10^k + \\dots + d_1 10^1 + d_0 10^0$ is congruent to the sum of its digits $(d_k + \\dots + d_0) \\pmod{9}$.</p><p class=\"mb-4\">To solve problems like 'Find $x$ where $x+3 \\equiv 9 \\pmod{5}$', you can first simplify the known numbers: $9 \\equiv 4 \\pmod{5}$. The problem becomes $x+3 \\equiv 4 \\pmod{5}$, which simplifies to $x \\equiv 1 \\pmod{5}$.</p>",
+    "generation_guideline": "Generate a modular arithmetic problem of the form `ax + b ≡ c (mod m)` and ask to solve for x.",
+    "questions": [
+      { "id": 1, "text": "Solve for $x$ where $0 \\le x \\le 6$: $x + 6 \\equiv 9 \\pmod{7}$.", "answer": "3" },
+      { "id": 2, "text": "What is the remainder of $4^7 \\div 7$?", "answer": "4" },
+      { "id": 3, "text": "What is the remainder of $2^5 \\times 3^5 \\div 5$?", "answer": "1" },
+      { "id": 4, "text": "Solve for $x$ where $0 \\le x \\le 5$: $3x \\cong 17 \\pmod{5}$.", "answer": "4" }
+    ]
+  },
+  {
+    "id": "s3.5.1",
+    "slug": "fun-with-factorials-sum",
+    "title": "Fun with Factorials: Summation",
+    "content": "<p class=\"mb-4\">There is a simple and elegant formula for the sum of the series $1 \\cdot 1! + 2 \\cdot 2! + \\dots + n \\cdot n!$. The derivation is left to the reader, but the result is very useful:</p><p class=\"text-center font-bold mb-4\">$\\sum_{k=1}^{n} k \\cdot k! = (n+1)! - 1$</p><p class=\"mb-4\">For example, to compute $1 \\cdot 1! + 2 \\cdot 2! + 3 \\cdot 3! + 4 \\cdot 4!$, we can use the formula with $n=4$:</p><p>$(4+1)! - 1 = 5! - 1 = 120 - 1 = 119$.</p><p>Variations may involve leaving out terms, which requires subtracting the missing terms from the total sum.</p>",
+    "generation_guideline": "Generate a summation problem of the form `1*1! + 2*2! + ... + n*n!` where n is between 3 and 7.",
+    "questions": [
+      { "id": 1, "text": "Calculate $1 \\cdot 1! + 2 \\cdot 2! + 3 \\cdot 3! + 4 \\cdot 4! + 5 \\cdot 5!$.", "answer": "719" },
+      { "id": 2, "text": "Calculate $1 \\cdot 1! + 2 \\cdot 2! + \\dots + 6 \\cdot 6!$.", "answer": "5039" },
+      { "id": 3, "text": "Calculate $1 \\cdot 1! + 2 \\cdot 2! + \\dots + 7 \\cdot 7!$.", "answer": "40319" }
+    ]
+  },
+  {
+    "id": "s4.1.3",
+    "slug": "multiplying-numbers-with-units-adding-to-10",
+    "title": "Multiplying Two Numbers Whose Units Add to 10 and the Rest is the Same",
+    "content": "<p class=\"mb-4\">This is a generalization of the 'Squares Ending in 5' trick. For two numbers where the units digits add to 10 and the remaining leading digits are the same (e.g., 68 and 62), there's a shortcut.</p><p class=\"mb-4\">Let the numbers be $10a+b$ and $10a+c$ where $b+c=10$. The product is $100a(a+1) + bc$.</p><p class=\"mb-4\"><strong>Procedure:</strong></p><ul class=\"list-disc pl-6 space-y-2 mb-4\"><li>The last two digits of the answer are the product of the units digits ($b \\times c$).</li><li>The preceding digits are the leading digit(s) ($a$) multiplied by one greater than itself ($a+1$).</li></ul><p>For example, for $68 \\times 62$: The last two digits are $8 \\times 2 = 16$. The preceding digits are $6 \\times (6+1) = 42$. The answer is 4216.</p>",
+    "generation_guideline": "Generate a multiplication problem of two numbers where the first digits are the same and the units digits sum to 10.",
+    "questions": [
+      { "id": 1, "text": "Calculate $71 \\times 79$.", "answer": "5609" },
+      { "id": 2, "text": "Calculate $112 \\times 118$.", "answer": "13216" },
+      { "id": 3, "text": "Calculate $44 \\times 46$.", "answer": "2024" },
+      { "id": 4, "text": "Calculate $221 \\times 229$.", "answer": "50609" }
+    ]
+  }
+]

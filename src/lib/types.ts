@@ -6,6 +6,20 @@ export type Topic = {
   exampleQuestions: string[];
 };
 
+export type MathTopic = {
+  id: string;
+  slug: string;
+  title: string;
+  content: string;
+  generation_guideline: string;
+  questions: {
+    id: number;
+    text: string;
+    answer: string;
+    hasErrorRange?: boolean;
+  }[];
+}
+
 export type TopicProgressSet = {
   questionsAttempted: number;
   questionsCorrect: number;
