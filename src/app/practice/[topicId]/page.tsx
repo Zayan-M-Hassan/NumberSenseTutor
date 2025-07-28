@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo, use } from 'react';
-import { notFound, useRouter, useParams } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { generateEstimationQuestion, GenerateEstimationQuestionOutput } from '@/ai/flows/generate-estimation-questions';
 import { getTopic } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
@@ -25,7 +25,7 @@ type View = 'practice' | 'stats';
 export default function PracticePage({ params }: { params: { topicId: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { topicId } = params;
+  const { topicId } = use(params);
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
@@ -92,25 +92,28 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       notFound();
       return;
     }
-
+  
     const currentProgress = getTopicProgress(topicId);
+  
     if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
       setView('stats');
       setLoading(false);
       return;
     }
-
+  
     if (!currentProgress.currentQuestion && !isFetchingQuestion) {
+      // If we are starting a new set and there is no question, fetch one.
       if (currentProgress.currentSet.questionsAttempted === 0 && !progress.topics[topicId]?.currentQuestion) {
-         startNewSet(topicId, true); // Pass true to indicate we're about to fetch
+        startNewSet(topicId, true); // Mark as fetching to prevent loops
       }
       fetchQuestion();
     } else if (currentProgress.currentQuestion) {
+      // If there's already a question in progress, just show it.
       setLoading(false);
       setTimerRunning(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topicId, topic, isFetchingQuestion]); 
+  }, [topicId, topic, isFetchingQuestion, progress.topics[topicId]?.currentQuestion]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -226,7 +229,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
             </div>
           </div>
           <CardDescription>Question {currentProgressForRender.currentSet.questionsAttempted + 1} of {settings.questionsPerSet}</CardDescription>
-          <Progress value={((currentProgressForRender.currentSet.questionsAttempted + 1) / settings.questionsPerSet) * 100} className="mt-2" />
+          <Progress value={((currentProgressForRender.currentSet.questionsAttempted) / settings.questionsPerSet) * 100} className="mt-2" />
         </CardHeader>
         <CardContent className="min-h-[200px]">
           {loading || !questionData ? (
