@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, use } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { generateEstimationQuestion, GenerateEstimationQuestionOutput } from '@/ai/flows/generate-estimation-questions';
 import { getTopic } from '@/data/topics';
@@ -25,7 +25,7 @@ type View = 'practice' | 'stats';
 export default function PracticePage({ params }: { params: { topicId: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { topicId } = use(params);
+  const { topicId } = params;
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
@@ -39,7 +39,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const [timerRunning, setTimerRunning] = useState(false);
   
   const { settings } = useSettings();
-  const { getTopicProgress, updateTopicProgress, startNewSet, setCurrentQuestion } = useProgress();
+  const { getTopicProgress, updateTopicProgress, startNewSet, setCurrentQuestion, progress } = useProgress();
   
   const topicProgress = getTopicProgress(topicId);
   const questionData = topicProgress.currentQuestion;
@@ -87,29 +87,29 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       notFound();
       return;
     }
-    
+    // This effect should only run when the component mounts or the topic changes.
+    // It decides whether to show stats, fetch a new question, or resume.
     const currentProgress = getTopicProgress(topicId);
     if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
       setView('stats');
+      setLoading(false);
       return;
     }
 
     if (!currentProgress.currentQuestion) {
+      // If there's no question, it might be the first time or after a completed question.
+      // Call startNewSet if the set is empty, then fetch.
+      if (currentProgress.currentSet.questionsAttempted === 0) {
+        startNewSet(topicId);
+      }
       fetchQuestion();
     } else {
+      // There is a question in progress, so just resume.
       setLoading(false);
       setTimerRunning(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topicId, topic]);
-  
-  useEffect(() => {
-    const currentProgress = getTopicProgress(topicId);
-    if (view === 'practice' && currentProgress.currentSet.questionsAttempted === 0 && !currentProgress.currentQuestion) {
-        startNewSet(topicId);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topicId, view]);
+  }, [topicId, topic, progress]); // Depend on progress to re-evaluate when it changes
 
 
   const handleSubmit = async (e: React.FormEvent) => {
