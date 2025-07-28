@@ -3,7 +3,6 @@ import './globals.css';
 import 'katex/dist/katex.min.css';
 import { SettingsProvider } from '@/hooks/use-settings.tsx';
 import { AppBody } from '@/components/app-body';
-import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: 'Number Sense Tutor',
@@ -27,12 +26,6 @@ export default function RootLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=Space+Grotesk:wght@400;700&family=Source+Code+Pro&display=swap"
           rel="stylesheet"
-        />
-        <Script
-          src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-          integrity="sha384-i1cOJCvimL6MghKuaLwbDSxGMGgTUAYvMA2snoSHIsZDxLmLswYLCRGTRcTpSnP+"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
         />
       </head>
       <SettingsProvider>

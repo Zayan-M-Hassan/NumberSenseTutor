@@ -2,15 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { useEffect, useRef } from 'react';
-
-declare global {
-  interface Window {
-    renderMathInElement: (
-      element: HTMLElement,
-      options: Record<string, any>
-    ) => void;
-  }
-}
+import katex from 'katex';
 
 export const Latex = ({
   content,
@@ -22,15 +14,13 @@ export const Latex = ({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (ref.current && window.renderMathInElement) {
-      window.renderMathInElement(ref.current, {
-        delimiters: [
-          { left: '$$', right: '$$', display: true },
-          { left: '$', right: '$', display: false },
-          { left: '\\(', right: '\\)', display: false },
-          { left: '\\[', right: '\\]', display: true },
-        ],
+    if (ref.current) {
+      const renderedHtml = content.replace(/\$\$([^$]+)\$\$/g, (match, math) => {
+        return katex.renderToString(math, { displayMode: true, throwOnError: false });
+      }).replace(/\$([^$]+)\$/g, (match, math) => {
+        return katex.renderToString(math, { displayMode: false, throwOnError: false });
       });
+      ref.current.innerHTML = renderedHtml;
     }
   }, [content]);
 
@@ -38,7 +28,6 @@ export const Latex = ({
     <div
       ref={ref}
       className={cn('prose prose-sm dark:prose-invert max-w-none', className)}
-      dangerouslySetInnerHTML={{ __html: content }}
     />
   );
 };
