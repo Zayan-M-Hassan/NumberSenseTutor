@@ -223,10 +223,14 @@ export default function PracticePage({ params }: { params: { topicId: string } }
                   id="answer"
                   type="text"
                   inputMode="numeric"
-                  pattern="[0-9,.]*"
-                  placeholder="e.g., 1,200,000"
+                  autoComplete="off"
                   value={userAnswer}
-                  onChange={(e) => setUserAnswer(e.target.value)}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    // Allow only numbers, commas, and a single decimal point
+                    const sanitizedValue = value.replace(/[^0-9.,]/g, '');
+                    setUserAnswer(sanitizedValue);
+                  }}
                   disabled={isSubmitting || status === 'correct'}
                   className={cn('text-lg transition-all duration-300', inputBorderColor)}
                 />
