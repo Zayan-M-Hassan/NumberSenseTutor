@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, use } from 'react';
+import { useState, useEffect, useCallback, use } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { getTopic } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
@@ -26,10 +26,9 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const router = useRouter();
   const { toast } = useToast();
   const topicId = use(params).topicId;
-  const topic = useMemo(() => getTopic(topicId), [topicId]);
+  const topic = getTopic(topicId);
   
   const [loading, setLoading] = useState(true);
-  const [isFetchingQuestion, setIsFetchingQuestion] = useState(false);
   const [userAnswer, setUserAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -40,7 +39,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const [timerRunning, setTimerRunning] = useState(false);
   
   const { settings } = useSettings();
-  const { getTopicProgress, updateTopicProgress, startNewSet, setCurrentQuestion, progress } = useProgress();
+  const { getTopicProgress, updateTopicProgress, startNewSet, setCurrentQuestion } = useProgress();
   
   const topicProgress = getTopicProgress(topicId);
   const questionData = topicProgress.currentQuestion;
@@ -56,10 +55,8 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   }, [timerRunning]);
 
   const fetchQuestion = useCallback(async () => {
-    if (!topic || isFetchingQuestion) return;
+    if (!topic) return;
     
-    setIsFetchingQuestion(true);
-    setLoading(true);
     setStatus('idle');
     setUserAnswer('');
     setTime(0);
@@ -72,7 +69,6 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       setCurrentQuestion(topicId, question, questionIndex);
       setTimerRunning(true);
     } catch (error) {
-      console.error('Failed to get question:', error);
       toast({
         title: 'Error',
         description: 'Could not load the question. Please try again later.',
@@ -81,9 +77,8 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       router.push('/');
     } finally {
       setLoading(false);
-      setIsFetchingQuestion(false);
     }
-  }, [topic, isFetchingQuestion, setCurrentQuestion, topicId, toast, router, getTopicProgress]);
+  }, [topic, setCurrentQuestion, topicId, toast, router, getTopicProgress]);
 
   useEffect(() => {
     if (!topic) {
@@ -93,7 +88,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
 
     const currentProgress = getTopicProgress(topicId);
 
-    if (view === 'practice' && !currentProgress.currentQuestion && !isFetchingQuestion) {
+    if (view === 'practice' && !currentProgress.currentQuestion) {
         if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
              setView('stats');
              setLoading(false);
@@ -104,7 +99,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
         setLoading(false);
         setTimerRunning(true);
     }
-  }, [topicId, view, topic, getTopicProgress, settings.questionsPerSet, notFound, fetchQuestion, isFetchingQuestion, startNewSet]);
+  }, [topicId, view, topic, getTopicProgress, settings.questionsPerSet, notFound, fetchQuestion]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -160,7 +155,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
 
   const handleNextFromModal = () => {
     setShowFeedbackModal(false);
-    const currentProgress = getTopicProgress(topicId); // get latest progress
+    const currentProgress = getTopicProgress(topicId);
     const setFinished = currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet;
     if (setFinished) {
       setView('stats');
@@ -188,7 +183,6 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     return null;
   }
   
-  // Get latest progress for rendering
   const currentProgressForRender = getTopicProgress(topicId);
 
   if (view === 'stats') {
@@ -246,7 +240,6 @@ export default function PracticePage({ params }: { params: { topicId: string } }
                   value={userAnswer}
                   onChange={(e) => {
                     const { value } = e.target;
-                    // Allow only numbers, commas, and a single decimal point
                     const sanitizedValue = value.replace(/[^0-9.,]/g, '');
                     setUserAnswer(sanitizedValue);
                   }}

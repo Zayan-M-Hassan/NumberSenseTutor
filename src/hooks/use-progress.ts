@@ -27,25 +27,7 @@ export const useProgress = () => {
     try {
       const item = window.localStorage.getItem(STORAGE_KEY);
       if (item) {
-        // Basic migration for old structure
-        const parsed = JSON.parse(item);
-        if (parsed.topics && Object.values(parsed.topics).length > 0) {
-            const firstTopic = Object.values(parsed.topics)[0] as any;
-            if(firstTopic.hasOwnProperty('attempted')) {
-                // This is the old structure, migrate it.
-                Object.keys(parsed.topics).forEach(topicId => {
-                    const oldTopic = parsed.topics[topicId];
-                    parsed.topics[topicId] = {
-                        overall: { attempted: oldTopic.attempted, correct: oldTopic.correct },
-                        currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
-                        completedSets: oldTopic.completedSets || 0,
-                        currentQuestion: null,
-                        questionIndex: 0,
-                    };
-                });
-            }
-        }
-        setProgress(parsed);
+        setProgress(JSON.parse(item));
       } else {
         setProgress(DEFAULT_PROGRESS);
       }
@@ -77,12 +59,15 @@ export const useProgress = () => {
                 ...topicProgress,
                 currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
                 currentQuestion: null,
-                questionIndex: 0,
+                questionIndex: topicProgress.currentSet.questionsAttempted > 0 ? topicProgress.questionIndex : 0,
             }
         }
     };
+    if (topicProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+        newProgress.topics[topicId].completedSets += 1;
+    }
     saveProgress(newProgress);
-  }, [progress, saveProgress]);
+  }, [progress, saveProgress, settings.questionsPerSet]);
 
   const setCurrentQuestion = useCallback((topicId: string, question: Question, questionIndex: number) => {
     if (!progress) return;
