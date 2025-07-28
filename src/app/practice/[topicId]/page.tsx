@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { notFound, useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback, useMemo, use } from 'react';
+import { notFound, useRouter, useParams } from 'next/navigation';
 import { generateEstimationQuestion, GenerateEstimationQuestionOutput } from '@/ai/flows/generate-estimation-questions';
 import { getTopic } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
@@ -85,7 +85,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       setLoading(false);
       setIsFetchingQuestion(false);
     }
-  }, [topic, router, toast, setCurrentQuestion, topicId, isFetchingQuestion]);
+  }, [topic, isFetchingQuestion, setCurrentQuestion, topicId, toast, router]);
 
   useEffect(() => {
     if (!topic) {
@@ -110,7 +110,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       setTimerRunning(true);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topicId, topic, progress, isFetchingQuestion]); 
+  }, [topicId, topic, isFetchingQuestion]); 
 
 
   const handleSubmit = async (e: React.FormEvent) => {
