@@ -25,7 +25,7 @@ type View = 'practice' | 'stats';
 export default function PracticePage({ params }: { params: { topicId: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { topicId } = use(params);
+  const topicId = use(params).topicId;
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
@@ -95,22 +95,19 @@ export default function PracticePage({ params }: { params: { topicId: string } }
 
     const currentProgress = getTopicProgress(topicId);
 
-    // If the set is finished, show stats.
     if (view === 'practice' && currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
         setView('stats');
         setLoading(false);
         return;
     }
-
-    // If we're in practice view and there's no question, fetch one.
+    
     if (view === 'practice' && !currentProgress.currentQuestion && !isFetchingQuestion) {
         fetchQuestion();
     } else if (currentProgress.currentQuestion) {
-        // If there's already a question in progress, just show it.
         setLoading(false);
         setTimerRunning(true);
     }
-}, [topicId, view, topic, isFetchingQuestion, fetchQuestion, getTopicProgress, settings.questionsPerSet, notFound]);
+}, [topicId, view, topic, getTopicProgress, settings.questionsPerSet, notFound, fetchQuestion, isFetchingQuestion]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,9 +173,8 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   };
   
   const handleStartNewSet = () => {
-    startNewSet(topicId, false);
+    startNewSet(topicId);
     setView('practice');
-    // fetchQuestion is called by useEffect
   }
 
   const handleReturnToTopics = () => {
