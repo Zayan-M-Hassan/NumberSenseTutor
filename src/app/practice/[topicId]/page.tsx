@@ -41,7 +41,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   
   const { settings } = useSettings();
   const { getTopicProgress, updateTopicProgress, startNewSet } = useProgress();
-  // We call getTopicProgress inside the component to ensure it's fresh on each render.
+  
   const topicProgress = getTopicProgress(topicId);
 
   const questionsAttemptedInSet = topicProgress.currentSet.questionsAttempted;
@@ -87,10 +87,24 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       notFound();
       return;
     }
-    startNewSet(topicId);
-    fetchQuestion();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topicId]);
+    const currentProgress = getTopicProgress(topicId);
+    if(currentProgress.currentSet.questionsAttempted === 0) {
+      fetchQuestion();
+    } else if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+      setView('stats');
+    } else {
+      fetchQuestion();
+    }
+  }, [topicId, fetchQuestion, getTopicProgress, settings.questionsPerSet, topic]);
+  
+  useEffect(() => {
+    const currentProgress = getTopicProgress(topicId);
+    if (currentProgress.currentSet.questionsAttempted === 0 && view === 'practice') {
+        startNewSet(topicId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topicId, view]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,7 +219,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
             </div>
           </div>
           <CardDescription>Question {currentProgressForRender.currentSet.questionsAttempted + 1} of {settings.questionsPerSet}</CardDescription>
-          <Progress value={(currentProgressForRender.currentSet.questionsAttempted / settings.questionsPerSet) * 100} className="mt-2" />
+          <Progress value={((currentProgressForRender.currentSet.questionsAttempted + 1) / settings.questionsPerSet) * 100} className="mt-2" />
         </CardHeader>
         <CardContent className="min-h-[200px]">
           {loading ? (
