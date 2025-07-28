@@ -37,7 +37,7 @@ const prompt = ai.definePrompt({
   name: 'generateEstimationQuestionPrompt',
   input: {schema: GenerateEstimationQuestionInputSchema},
   output: {schema: GenerateEstimationQuestionOutputSchema},
-  prompt: `You are an expert in generating numerical calculation questions.
+  prompt: `You are an expert in generating numerical calculation questions. Your most important task is to ensure the answer you provide is 100% correct. Double-check your calculations before providing the answer.
 
   Based on the topic and example questions provided, generate a new and unique calculation question. Also include the answer to the question.
 
