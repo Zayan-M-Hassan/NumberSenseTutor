@@ -85,11 +85,12 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   useEffect(() => {
     if (!topic) {
       notFound();
-    } else {
-      startNewSet(topicId);
-      fetchQuestion();
+      return;
     }
-  }, [topic, fetchQuestion, topicId, startNewSet]);
+    startNewSet(topicId);
+    fetchQuestion();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topicId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
