@@ -3,6 +3,7 @@ import './globals.css';
 import 'katex/dist/katex.min.css';
 import { SettingsProvider } from '@/hooks/use-settings.tsx';
 import { AppBody } from '@/components/app-body';
+import { Analytics } from '@vercel/analytics/react';
 
 export const metadata: Metadata = {
   title: 'Number Sense Tutor',
@@ -30,7 +31,10 @@ export default function RootLayout({
         />
       </head>
       <SettingsProvider>
-        <AppBody>{children}</AppBody>
+        <AppBody>
+          {children}
+          <Analytics />
+        </AppBody>
       </SettingsProvider>
     </html>
   );
