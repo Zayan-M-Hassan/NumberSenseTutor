@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, use, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, use } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { getTopic } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
@@ -43,41 +43,38 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const { getTopicProgress, updateTopicProgress, startNewSet, setCurrentQuestion } = useProgress();
   
   const topicProgress = getTopicProgress(topicId);
-  const questionData = topic?.questions[questionIndex % topic.questions.length];
-
-  const fetchQuestion = useCallback(() => {
-    if (!topic) return;
-
-    const progress = getTopicProgress(topicId);
-    if (progress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-      setView('stats');
-      return;
-    }
-    
-    setStatus('idle');
-    setUserAnswer('');
-    setTime(0);
-    setTimerRunning(true);
-    setCurrentQuestion(topicId, questionData || null);
-    setLoading(false);
-  }, [topic, getTopicProgress, settings.questionsPerSet, setCurrentQuestion, topicId, questionData]);
+  const questionData = topic?.questions[questionIndex];
 
   useEffect(() => {
     if (!topic) {
       notFound();
       return;
     }
+
     const currentProgress = getTopicProgress(topicId);
     if (view === 'practice') {
       if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-           setView('stats');
+        setView('stats');
       } else {
-          fetchQuestion();
+        setStatus('idle');
+        setUserAnswer('');
+        setTime(0);
+        setTimerRunning(true);
+        setCurrentQuestion(topicId, questionData || null);
       }
-    } else {
-      setLoading(false);
     }
-  }, [topicId, view, topic, getTopicProgress, settings.questionsPerSet, notFound, fetchQuestion]);
+    setLoading(false);
+  }, [topicId, view, topic, settings.questionsPerSet, questionIndex, getTopicProgress, setCurrentQuestion, notFound, questionData]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+    if(timerRunning) {
+      interval = setInterval(() => {
+        setTime(prevTime => prevTime + 1)
+      }, 1000)
+    }
+    return () => clearInterval(interval);
+  }, [timerRunning]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
