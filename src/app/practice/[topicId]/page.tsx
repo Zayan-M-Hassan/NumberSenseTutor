@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, use } from 'react';
+import { useState, useEffect, useCallback, use, useMemo } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { getTopic } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
@@ -26,9 +26,10 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const router = useRouter();
   const { toast } = useToast();
   const topicId = use(params).topicId;
-  const topic = getTopic(topicId);
+  const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
+  const [questionIndex, setQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -42,52 +43,39 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const { getTopicProgress, updateTopicProgress, startNewSet, setCurrentQuestion } = useProgress();
   
   const topicProgress = getTopicProgress(topicId);
-  const questionData = topicProgress.currentQuestion;
+  const questionData = topic?.questions[questionIndex % topic.questions.length];
 
-  const fetchQuestion = useCallback(async () => {
+  const fetchQuestion = useCallback(() => {
     if (!topic) return;
+
+    const progress = getTopicProgress(topicId);
+    if (progress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+      setView('stats');
+      return;
+    }
     
     setStatus('idle');
     setUserAnswer('');
     setTime(0);
-
-    try {
-      const progress = getTopicProgress(topicId);
-      const questionIndex = progress.questionIndex % topic.questions.length;
-      const question = topic.questions[questionIndex];
-
-      setCurrentQuestion(topicId, question);
-      setTimerRunning(true);
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Could not load the question. Please try again later.',
-        variant: 'destructive',
-      });
-      router.push('/');
-    } finally {
-      setLoading(false);
-    }
-  }, [topic, setCurrentQuestion, topicId, toast, router, getTopicProgress]);
+    setTimerRunning(true);
+    setCurrentQuestion(topicId, questionData || null);
+    setLoading(false);
+  }, [topic, getTopicProgress, settings.questionsPerSet, setCurrentQuestion, topicId, questionData]);
 
   useEffect(() => {
     if (!topic) {
-        notFound();
-        return;
+      notFound();
+      return;
     }
-
     const currentProgress = getTopicProgress(topicId);
-
-    if (view === 'practice' && !currentProgress.currentQuestion) {
-        if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-             setView('stats');
-             setLoading(false);
-        } else {
-            fetchQuestion();
-        }
-    } else if (currentProgress.currentQuestion) {
-        setLoading(false);
-        setTimerRunning(true);
+    if (view === 'practice') {
+      if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+           setView('stats');
+      } else {
+          fetchQuestion();
+      }
+    } else {
+      setLoading(false);
     }
   }, [topicId, view, topic, getTopicProgress, settings.questionsPerSet, notFound, fetchQuestion]);
 
@@ -124,7 +112,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           description: 'Great answer! Loading next question...',
         });
         setTimeout(() => {
-          fetchQuestion();
+          setQuestionIndex(prev => prev + 1);
         }, 1500);
       }
     } else {
@@ -142,20 +130,25 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     }
     setIsSubmitting(false);
   };
-
-  const handleNextFromModal = () => {
-    setShowFeedbackModal(false);
-    const currentProgress = getTopicProgress(topicId);
-    const setFinished = currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet;
+  
+  const handleProceed = () => {
+    const newProgress = getTopicProgress(topicId);
+    const setFinished = newProgress.currentSet.questionsAttempted >= settings.questionsPerSet;
     if (setFinished) {
       setView('stats');
     } else {
-      fetchQuestion();
+      setQuestionIndex(prev => prev + 1);
     }
+  }
+
+  const handleNextFromModal = () => {
+    setShowFeedbackModal(false);
+    handleProceed();
   };
   
   const handleStartNewSet = () => {
     startNewSet(topicId);
+    setQuestionIndex(0);
     setView('practice');
   }
 

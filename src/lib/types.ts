@@ -40,7 +40,6 @@ export type TopicProgress = {
   currentSet: TopicProgressSet,
   completedSets: number;
   currentQuestion: Question | null;
-  questionIndex: number;
 };
 
 export type Progress = {
