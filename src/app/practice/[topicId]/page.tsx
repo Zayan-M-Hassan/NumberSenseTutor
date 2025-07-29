@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, use } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { getTopic } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
@@ -18,6 +17,8 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { StatsCard } from '@/components/stats-card';
 import { Latex } from '@/components/ui/latex';
+import React from 'react';
+import type { Question } from '@/lib/types';
 
 type Status = 'idle' | 'correct' | 'incorrect';
 type View = 'practice' | 'stats';
@@ -25,11 +26,12 @@ type View = 'practice' | 'stats';
 export default function PracticePage({ params }: { params: { topicId: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  const topicId = use(params).topicId;
+  const { topicId } = React.use(params);
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
   const [questionIndex, setQuestionIndex] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [userAnswer, setUserAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -40,10 +42,9 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const [timerRunning, setTimerRunning] = useState(false);
   
   const { settings } = useSettings();
-  const { getTopicProgress, updateTopicProgress, startNewSet, setCurrentQuestion } = useProgress();
+  const { getTopicProgress, updateTopicProgress, startNewSet } = useProgress();
   
   const topicProgress = getTopicProgress(topicId);
-  const questionData = topic?.questions[questionIndex];
 
   useEffect(() => {
     if (!topic) {
@@ -51,20 +52,31 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       return;
     }
 
-    const currentProgress = getTopicProgress(topicId);
-    if (view === 'practice') {
-      if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-        setView('stats');
-      } else {
+    const fetchQuestion = () => {
+      setLoading(true);
+      const question = topic.questions[questionIndex];
+      if (question) {
+        setCurrentQuestion(question);
         setStatus('idle');
         setUserAnswer('');
         setTime(0);
         setTimerRunning(true);
-        setCurrentQuestion(topicId, questionData || null);
+      } else {
+        // No more questions, show stats
+        setView('stats');
+      }
+      setLoading(false);
+    };
+
+    if (view === 'practice') {
+      const currentProgress = getTopicProgress(topicId);
+      if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+          setView('stats');
+      } else {
+        fetchQuestion();
       }
     }
-    setLoading(false);
-  }, [topicId, view, topic, settings.questionsPerSet, questionIndex, getTopicProgress, setCurrentQuestion, notFound, questionData]);
+  }, [topicId, view, topic, questionIndex, notFound, settings.questionsPerSet, getTopicProgress]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
@@ -76,18 +88,17 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     return () => clearInterval(interval);
   }, [timerRunning]);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userAnswer || !questionData) return;
+    if (!userAnswer || !currentQuestion) return;
     setTimerRunning(false);
 
     setIsSubmitting(true);
     const userAnswerNumber = parseFloat(userAnswer.replace(/,/g, ''));
-    const correctAnswer = questionData.answer;
+    const correctAnswer = currentQuestion.answer;
 
     let isCorrect: boolean;
-    if (questionData.hasErrorRange) {
+    if (currentQuestion.hasErrorRange) {
       const errorMargin = 0.25;
       isCorrect = Math.abs(userAnswerNumber - correctAnswer) / correctAnswer <= errorMargin;
     } else {
@@ -119,7 +130,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       const upperBound = correctAnswer * (1 + errorMargin);
       
       let feedbackText = `The correct answer is ${correctAnswer.toLocaleString()}.`;
-      if(questionData.hasErrorRange) {
+      if(currentQuestion.hasErrorRange) {
         feedbackText = `The correct answer is in the range of ${lowerBound.toLocaleString()} to ${upperBound.toLocaleString()}. The exact answer is ${correctAnswer.toLocaleString()}.`
       }
       setFeedback(feedbackText);
@@ -196,7 +207,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           <Progress value={((currentProgressForRender.currentSet.questionsAttempted) / settings.questionsPerSet) * 100} className="mt-2" />
         </CardHeader>
         <CardContent className="min-h-[200px]">
-          {loading || !questionData ? (
+          {loading || !currentQuestion ? (
             <div className="space-y-4">
               <Skeleton className="h-8 w-3/4" />
               <Skeleton className="h-10 w-full" />
@@ -206,8 +217,8 @@ export default function PracticePage({ params }: { params: { topicId: string } }
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <div className="text-xl font-semibold text-foreground">
-                  {questionData?.hasErrorRange && <span className="text-destructive mr-1">*</span>}
-                  <Latex content={questionData?.text ?? ''} />
+                  {currentQuestion?.hasErrorRange && <span className="text-destructive mr-1">*</span>}
+                  <Latex content={currentQuestion?.text ?? ''} />
                 </div>
               </div>
               <div className="space-y-2">
