@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
@@ -46,13 +47,15 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   
   const topicProgress = getTopicProgress(topicId);
 
-  useEffect(() => {
-    if (!topic) {
-      notFound();
-      return;
-    }
+  const fetchQuestion = useCallback(() => {
+    if (!topic) return;
 
-    const fetchQuestion = () => {
+    const currentProgress = getTopicProgress(topicId);
+    if (view === 'practice') {
+      if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
+          setView('stats');
+          return;
+      }
       setLoading(true);
       const question = topic.questions[questionIndex];
       if (question) {
@@ -62,21 +65,19 @@ export default function PracticePage({ params }: { params: { topicId: string } }
         setTime(0);
         setTimerRunning(true);
       } else {
-        // No more questions, show stats
         setView('stats');
       }
       setLoading(false);
-    };
-
-    if (view === 'practice') {
-      const currentProgress = getTopicProgress(topicId);
-      if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-          setView('stats');
-      } else {
-        fetchQuestion();
-      }
     }
-  }, [topicId, view, topic, questionIndex, notFound, settings.questionsPerSet, getTopicProgress]);
+  }, [topic, view, questionIndex, settings.questionsPerSet, getTopicProgress]);
+
+  useEffect(() => {
+    if (!topic) {
+      notFound();
+      return;
+    }
+    fetchQuestion();
+  }, [topicId, view, topic, questionIndex, notFound, fetchQuestion]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
@@ -99,7 +100,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
 
     let isCorrect: boolean;
     if (currentQuestion.hasErrorRange) {
-      const errorMargin = 0.25;
+      const errorMargin = 0.05;
       isCorrect = Math.abs(userAnswerNumber - correctAnswer) / correctAnswer <= errorMargin;
     } else {
       isCorrect = userAnswerNumber === correctAnswer;
@@ -125,7 +126,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       }
     } else {
       setStatus('incorrect');
-      const errorMargin = 0.25;
+      const errorMargin = 0.05;
       const lowerBound = correctAnswer * (1 - errorMargin);
       const upperBound = correctAnswer * (1 + errorMargin);
       
@@ -217,7 +218,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <div className="text-xl font-semibold text-foreground">
-                  {currentQuestion?.hasErrorRange && <span className="text-destructive mr-1">*</span>}
+                  {currentQuestion?.hasErrorRange && <span className="text-destructive mr-1 text-2xl">*</span>}
                   <Latex content={currentQuestion?.text ?? ''} />
                 </div>
               </div>
