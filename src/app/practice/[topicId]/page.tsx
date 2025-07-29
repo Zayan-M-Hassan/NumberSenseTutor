@@ -44,16 +44,6 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const topicProgress = getTopicProgress(topicId);
   const questionData = topicProgress.currentQuestion;
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
-    if (timerRunning) {
-      interval = setInterval(() => {
-        setTime(prevTime => prevTime + 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [timerRunning]);
-
   const fetchQuestion = useCallback(async () => {
     if (!topic) return;
     
@@ -66,7 +56,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       const questionIndex = progress.questionIndex % topic.questions.length;
       const question = topic.questions[questionIndex];
 
-      setCurrentQuestion(topicId, question, questionIndex);
+      setCurrentQuestion(topicId, question);
       setTimerRunning(true);
     } catch (error) {
       toast({

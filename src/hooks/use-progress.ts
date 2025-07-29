@@ -69,7 +69,7 @@ export const useProgress = () => {
     saveProgress(newProgress);
   }, [progress, saveProgress, settings.questionsPerSet]);
 
-  const setCurrentQuestion = useCallback((topicId: string, question: Question, questionIndex: number) => {
+  const setCurrentQuestion = useCallback((topicId: string, question: Question) => {
     if (!progress) return;
     
     const topicProgress = progress.topics[topicId] || createDefaultTopicProgress();
@@ -81,7 +81,6 @@ export const useProgress = () => {
             [topicId]: {
                 ...topicProgress,
                 currentQuestion: question,
-                questionIndex: questionIndex,
             }
         }
     };
