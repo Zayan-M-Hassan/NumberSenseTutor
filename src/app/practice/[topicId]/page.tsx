@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound, useRouter, useParams } from 'next/navigation';
 import { getTopic } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
 import { useSettings } from '@/hooks/use-settings';
@@ -24,10 +24,11 @@ import type { Question } from '@/lib/types';
 type Status = 'idle' | 'correct' | 'incorrect' | 'submitted';
 type View = 'practice' | 'stats';
 
-export default function PracticePage({ params }: { params: { topicId: string } }) {
+export default function PracticePage() {
   const router = useRouter();
+  const params = useParams();
   const { toast } = useToast();
-  const { topicId } = params;
+  const topicId = params.topicId as string;
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const { settings } = useSettings();
@@ -293,5 +294,3 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     </div>
   );
 }
-
-    
