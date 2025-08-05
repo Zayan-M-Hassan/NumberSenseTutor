@@ -1,9 +1,14 @@
+
+'use client';
+
+import { useState } from 'react';
 import { getTopics } from '@/data/topics';
 import { TopicList } from '@/components/topic-list';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { TopicStatus } from '@/lib/types';
 
 export default function Home() {
   const topics = getTopics();
+  const [filter, setFilter] = useState<TopicStatus | 'all'>('all');
 
   return (
     <div className="container mx-auto max-w-5xl py-8 px-4">

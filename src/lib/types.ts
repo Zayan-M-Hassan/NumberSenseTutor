@@ -39,7 +39,6 @@ export type TopicProgress = {
   };
   currentSet: TopicProgressSet,
   completedSets: number;
-  currentQuestion: Question | null;
 };
 
 export type Progress = {
@@ -51,3 +50,5 @@ export type Settings = {
   theme: 'light' | 'dark' | 'system';
   colorTheme: string;
 };
+
+export type TopicStatus = 'Completed' | 'In Progress' | 'Not Started';
