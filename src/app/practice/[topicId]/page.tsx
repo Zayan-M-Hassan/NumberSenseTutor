@@ -21,13 +21,13 @@ import { Latex } from '@/components/ui/latex';
 import React from 'react';
 import type { Question } from '@/lib/types';
 
-type Status = 'idle' | 'correct' | 'incorrect';
+type Status = 'idle' | 'correct' | 'incorrect' | 'submitted';
 type View = 'practice' | 'stats';
 
 export default function PracticePage({ params }: { params: { topicId: string } }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { topicId } = React.use(params);
+  const { topicId } = params;
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
   const [loading, setLoading] = useState(true);
@@ -57,7 +57,16 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           return;
       }
       setLoading(true);
-      const question = topic.questions[questionIndex];
+      
+      const nextQuestionIndex = questionIndex % topic.questions.length;
+      if (nextQuestionIndex === 0 && questionIndex > 0) {
+        toast({
+          title: 'Topic Complete!',
+          description: "You've answered all questions in this topic. Starting over for more practice!",
+        });
+      }
+
+      const question = topic.questions[nextQuestionIndex];
       if (question) {
         setCurrentQuestion(question);
         setStatus('idle');
@@ -69,7 +78,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       }
       setLoading(false);
     }
-  }, [topic, view, questionIndex, settings.questionsPerSet, getTopicProgress]);
+  }, [topic, view, questionIndex, settings.questionsPerSet, getTopicProgress, toast]);
 
   useEffect(() => {
     if (!topic) {
@@ -91,9 +100,9 @@ export default function PracticePage({ params }: { params: { topicId: string } }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!userAnswer || !currentQuestion) return;
+    if (!userAnswer || !currentQuestion || status === 'submitted') return;
     setTimerRunning(false);
-
+    setStatus('submitted');
     setIsSubmitting(true);
     const userAnswerNumber = parseFloat(userAnswer.replace(/,/g, ''));
     const correctAnswer = currentQuestion.answer;
@@ -122,7 +131,8 @@ export default function PracticePage({ params }: { params: { topicId: string } }
         });
         setTimeout(() => {
           setQuestionIndex(prev => prev + 1);
-        }, 1500);
+          setIsSubmitting(false);
+        }, 500);
       }
     } else {
       setStatus('incorrect');
@@ -137,7 +147,9 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       setFeedback(feedbackText);
       setShowFeedbackModal(true);
     }
-    setIsSubmitting(false);
+    if (!isCorrect) {
+      setIsSubmitting(false);
+    }
   };
   
   const handleProceed = () => {
@@ -169,6 +181,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     idle: 'border-input',
     correct: 'border-primary ring-2 ring-primary',
     incorrect: 'border-destructive ring-2 ring-destructive',
+    submitted: 'border-input',
   }[status];
 
   if (!topic) {
@@ -235,7 +248,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
                     const sanitizedValue = value.replace(/[^0-9.,]/g, '');
                     setUserAnswer(sanitizedValue);
                   }}
-                  disabled={isSubmitting || status === 'correct'}
+                  disabled={isSubmitting || status === 'correct' || status === 'submitted'}
                   className={cn('text-lg transition-all duration-300', inputBorderColor)}
                 />
               </div>
@@ -246,7 +259,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           <Button
             type="submit"
             onClick={handleSubmit}
-            disabled={isSubmitting || loading || !userAnswer || status === 'correct'}
+            disabled={isSubmitting || loading || !userAnswer || status === 'correct' || status === 'submitted'}
             className="w-full"
           >
             {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -267,7 +280,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
             </DialogDescription>
           </DialogHeader>
           <div className="prose prose-sm dark:prose-invert max-h-[60vh] overflow-y-auto rounded-md border bg-secondary/50 p-4">
-            {feedback}
+            <Latex content={feedback ?? ''} />
           </div>
           <DialogFooter>
             <Button onClick={handleNextFromModal} className="w-full">
