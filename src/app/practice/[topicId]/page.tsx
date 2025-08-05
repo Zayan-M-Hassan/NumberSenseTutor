@@ -30,9 +30,14 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const { topicId } = params;
   const topic = useMemo(() => getTopic(topicId), [topicId]);
   
-  const [loading, setLoading] = useState(true);
+  const { settings } = useSettings();
+  const { getTopicProgress, updateTopicProgress, startNewSet } = useProgress();
+  
   const [questionIndex, setQuestionIndex] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+  const [nextQuestion, setNextQuestion] = useState<Question | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const [userAnswer, setUserAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -42,33 +47,38 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const [time, setTime] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
   
-  const { settings } = useSettings();
-  const { getTopicProgress, updateTopicProgress, startNewSet } = useProgress();
-  
   const topicProgress = getTopicProgress(topicId);
 
-  const fetchQuestion = useCallback(() => {
-    if (!topic) return;
+  const fetchQuestion = useCallback((index: number): Question | null => {
+    if (!topic) return null;
 
-    const currentProgress = getTopicProgress(topicId);
+    const setFinished = getTopicProgress(topicId).currentSet.questionsAttempted >= settings.questionsPerSet;
+    if (setFinished) {
+      return null;
+    }
+    
+    if (index === topic.questions.length) {
+      toast({
+        title: 'Topic Complete!',
+        description: "You've answered all questions in this topic. Starting over for more practice!",
+      });
+    }
+    
+    return topic.questions[index % topic.questions.length];
+  }, [topic, getTopicProgress, settings.questionsPerSet, toast]);
+  
+  useEffect(() => {
+    if (!topic) {
+      notFound();
+      return;
+    }
+
     if (view === 'practice') {
-      if (currentProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-          setView('stats');
-          return;
-      }
-      setLoading(true);
-      
-      const nextQuestionIndex = questionIndex % topic.questions.length;
-      if (nextQuestionIndex === 0 && questionIndex > 0) {
-        toast({
-          title: 'Topic Complete!',
-          description: "You've answered all questions in this topic. Starting over for more practice!",
-        });
-      }
-
-      const question = topic.questions[nextQuestionIndex];
-      if (question) {
-        setCurrentQuestion(question);
+      const initialQuestion = fetchQuestion(questionIndex);
+      if (initialQuestion) {
+        setCurrentQuestion(initialQuestion);
+        setNextQuestion(fetchQuestion(questionIndex + 1));
+        setLoading(false);
         setStatus('idle');
         setUserAnswer('');
         setTime(0);
@@ -76,17 +86,8 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       } else {
         setView('stats');
       }
-      setLoading(false);
     }
-  }, [topic, view, questionIndex, settings.questionsPerSet, getTopicProgress, toast]);
-
-  useEffect(() => {
-    if (!topic) {
-      notFound();
-      return;
-    }
-    fetchQuestion();
-  }, [topicId, view, topic, questionIndex, notFound, fetchQuestion]);
+  }, [topicId, view, topic, questionIndex, fetchQuestion, notFound]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
@@ -101,42 +102,29 @@ export default function PracticePage({ params }: { params: { topicId: string } }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userAnswer || !currentQuestion || status === 'submitted') return;
+    
     setTimerRunning(false);
-    setStatus('submitted');
     setIsSubmitting(true);
+    setStatus('submitted');
+    
     const userAnswerNumber = parseFloat(userAnswer.replace(/,/g, ''));
     const correctAnswer = currentQuestion.answer;
 
     let isCorrect: boolean;
+    const errorMargin = 0.05;
     if (currentQuestion.hasErrorRange) {
-      const errorMargin = 0.05;
-      isCorrect = Math.abs(userAnswerNumber - correctAnswer) / correctAnswer <= errorMargin;
+      isCorrect = correctAnswer === 0 ? userAnswerNumber === 0 : Math.abs(userAnswerNumber - correctAnswer) / correctAnswer <= errorMargin;
     } else {
       isCorrect = userAnswerNumber === correctAnswer;
     }
 
-    const newProgress = updateTopicProgress(topicId, { isCorrect, timeTaken: time });
-
-    const setFinished = newProgress.currentSet.questionsAttempted >= settings.questionsPerSet;
+    updateTopicProgress(topicId, { isCorrect, timeTaken: time });
 
     if (isCorrect) {
       setStatus('correct');
-      if (setFinished) {
-        toast({ title: 'Set Complete!', description: 'Great job! Here are your stats.' });
-        setView('stats');
-      } else {
-        toast({
-          title: 'Correct!',
-          description: 'Great answer! Loading next question...',
-        });
-        setTimeout(() => {
-          setQuestionIndex(prev => prev + 1);
-          setIsSubmitting(false);
-        }, 500);
-      }
+      handleProceed();
     } else {
       setStatus('incorrect');
-      const errorMargin = 0.05;
       const lowerBound = correctAnswer * (1 - errorMargin);
       const upperBound = correctAnswer * (1 + errorMargin);
       
@@ -146,19 +134,32 @@ export default function PracticePage({ params }: { params: { topicId: string } }
       }
       setFeedback(feedbackText);
       setShowFeedbackModal(true);
-    }
-    if (!isCorrect) {
-      setIsSubmitting(false);
+      setIsSubmitting(false); 
     }
   };
   
   const handleProceed = () => {
     const newProgress = getTopicProgress(topicId);
     const setFinished = newProgress.currentSet.questionsAttempted >= settings.questionsPerSet;
+
     if (setFinished) {
-      setView('stats');
+        setView('stats');
+        return;
+    }
+    
+    if (nextQuestion) {
+      const newIndex = questionIndex + 1;
+      setQuestionIndex(newIndex);
+      setCurrentQuestion(nextQuestion);
+      setNextQuestion(fetchQuestion(newIndex + 1));
+      
+      setStatus('idle');
+      setUserAnswer('');
+      setIsSubmitting(false);
+      setTime(0);
+      setTimerRunning(true);
     } else {
-      setQuestionIndex(prev => prev + 1);
+      setView('stats');
     }
   }
 
@@ -248,7 +249,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
                     const sanitizedValue = value.replace(/[^0-9.,]/g, '');
                     setUserAnswer(sanitizedValue);
                   }}
-                  disabled={isSubmitting || status === 'correct' || status === 'submitted'}
+                  disabled={status === 'submitted'}
                   className={cn('text-lg transition-all duration-300', inputBorderColor)}
                 />
               </div>
@@ -259,7 +260,7 @@ export default function PracticePage({ params }: { params: { topicId: string } }
           <Button
             type="submit"
             onClick={handleSubmit}
-            disabled={isSubmitting || loading || !userAnswer || status === 'correct' || status === 'submitted'}
+            disabled={status === 'submitted' || loading || !userAnswer}
             className="w-full"
           >
             {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
@@ -292,3 +293,5 @@ export default function PracticePage({ params }: { params: { topicId: string } }
     </div>
   );
 }
+
+    
