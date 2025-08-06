@@ -247,7 +247,7 @@ export default function PracticePage() {
                   value={userAnswer}
                   onChange={(e) => {
                     const { value } = e.target;
-                    const sanitizedValue = value.replace(/[^0-9.,]/g, '');
+                    const sanitizedValue = value.replace(/[^0-9.,\-\/]/g, '');
                     setUserAnswer(sanitizedValue);
                   }}
                   disabled={status === 'submitted'}
