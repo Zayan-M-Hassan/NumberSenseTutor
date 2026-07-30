@@ -2,47 +2,38 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Settings, TestTubeDiagonal } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 
-const navLinks = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/settings', label: 'Settings', icon: Settings },
+const NAV = [
+  { href: '/exam', label: 'Test' },
+  { href: '/stats', label: 'Stats' },
+  { href: '/settings', label: 'Settings' },
 ];
 
 export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
-        <div className="mr-4 flex items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <TestTubeDiagonal className="h-6 w-6 text-primary" />
-            <span className="font-bold font-headline sm:inline-block">
-              Number Sense Tutor
-            </span>
-          </Link>
-        </div>
-        <nav className="flex flex-1 items-center space-x-2 sm:space-x-4 justify-end">
-          {navLinks.map(({ href, label, icon: Icon }) => (
-            <Button
+    <header className="border-b border-rule">
+      <div className="mx-auto flex h-14 max-w-3xl items-center gap-6 px-5">
+        <Link href="/" className="flex items-baseline gap-2">
+          {/* The asterisk is the contest's own mark for an approximate problem. */}
+          <span className="star-mark text-lg leading-none">*</span>
+          <span className="font-question text-[0.9375rem] text-ink">Number Sense</span>
+        </Link>
+
+        <nav className="ml-auto flex items-center gap-5">
+          {NAV.map(({ href, label }) => (
+            <Link
               key={href}
-              variant="ghost"
-              asChild
+              href={href}
               className={cn(
-                'text-sm font-medium',
-                pathname === href
-                  ? 'text-primary'
-                  : 'text-muted-foreground',
+                'font-mono text-xs uppercase tracking-wider transition-colors',
+                pathname === href ? 'text-ink' : 'text-ink-faint hover:text-ink-soft'
               )}
             >
-              <Link href={href}>
-                <Icon className="h-4 w-4 mr-2 sm:hidden" />
-                <span className="hidden sm:inline">{label}</span>
-              </Link>
-            </Button>
+              {label}
+            </Link>
           ))}
         </nav>
       </div>

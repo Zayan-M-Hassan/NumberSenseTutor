@@ -1,77 +1,48 @@
 'use client';
 
-import {
-  useState,
-  useEffect,
-  useCallback,
-  createContext,
-  useContext,
-} from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { Settings } from '@/lib/types';
 
 const STORAGE_KEY = 'number-sense-tutor-settings';
 
-const DEFAULT_SETTINGS: Settings = {
+const DEFAULTS: Settings = {
   questionsPerSet: 10,
   theme: 'system',
-  colorTheme: 'theme-default',
 };
 
 type SettingsContextType = {
   settings: Settings;
-  saveSettings: (newSettings: Partial<Settings>) => void;
+  saveSettings: (patch: Partial<Settings>) => void;
 };
 
 const SettingsContext = createContext<SettingsContextType | null>(null);
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [settings, setSettings] = useState<Settings | null>(null);
+  const [settings, setSettings] = useState<Settings>(DEFAULTS);
 
   useEffect(() => {
     try {
       const item = window.localStorage.getItem(STORAGE_KEY);
-      if (item) {
-        const parsedSettings = JSON.parse(item);
-        setSettings({ ...DEFAULT_SETTINGS, ...parsedSettings });
-      } else {
-        setSettings(DEFAULT_SETTINGS);
-      }
-    } catch (error) {
-      console.warn(`Error reading localStorage key “${STORAGE_KEY}”:`, error);
-      setSettings(DEFAULT_SETTINGS);
+      if (item) setSettings({ ...DEFAULTS, ...JSON.parse(item) });
+    } catch {
+      // Fall back to defaults.
     }
   }, []);
 
-  const saveSettings = useCallback(
-    (newSettings: Partial<Settings>) => {
+  const saveSettings = useCallback((patch: Partial<Settings>) => {
+    setSettings((prev) => {
+      const next = { ...prev, ...patch };
       try {
-        const updatedSettings = {
-          ...(settings ?? DEFAULT_SETTINGS),
-          ...newSettings,
-        };
-        setSettings(updatedSettings);
-        window.localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify(updatedSettings)
-        );
-      } catch (error)
-        {
-        console.warn(
-          `Error setting localStorage key “${STORAGE_KEY}”:`,
-          error
-        );
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // Non-fatal.
       }
-    },
-    [settings]
-  );
-
-  const value = {
-    settings: settings ?? DEFAULT_SETTINGS,
-    saveSettings,
-  };
+      return next;
+    });
+  }, []);
 
   return (
-    <SettingsContext.Provider value={value}>
+    <SettingsContext.Provider value={{ settings, saveSettings }}>
       {children}
     </SettingsContext.Provider>
   );
@@ -79,8 +50,6 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
 export const useSettings = () => {
   const context = useContext(SettingsContext);
-  if (!context) {
-    throw new Error('useSettings must be used within a SettingsProvider');
-  }
+  if (!context) throw new Error('useSettings must be used within a SettingsProvider');
   return context;
 };
