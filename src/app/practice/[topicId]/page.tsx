@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getPractisableTopics, getTopic } from '@/data/topics';
+import { getLesson, getPractisableTopics } from '@/data/topics';
 import { PracticeRunner } from '@/components/practice-runner';
 
 export async function generateStaticParams() {
@@ -8,8 +8,8 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ topicId: string }> }) {
   const { topicId } = await params;
-  const topic = await getTopic(topicId);
-  return { title: topic ? `${topic.name} — practice` : 'Practice' };
+  const lesson = await getLesson(topicId);
+  return { title: lesson ? `${lesson.title} — practice` : 'Practice' };
 }
 
 export default async function PracticePage({
@@ -18,7 +18,10 @@ export default async function PracticePage({
   params: Promise<{ topicId: string }>;
 }) {
   const { topicId } = await params;
-  const topic = await getTopic(topicId);
-  if (!topic || topic.section || topic.questions.length === 0) notFound();
-  return <PracticeRunner topic={topic} />;
+  const lesson = await getLesson(topicId);
+  if (!lesson || lesson.section || lesson.questionCount === 0) notFound();
+
+  // Only the topic's name and id cross to the client. The 1,000 questions are
+  // fetched as a static asset, so this page stays small.
+  return <PracticeRunner topicId={lesson.id} topicName={lesson.title} />;
 }

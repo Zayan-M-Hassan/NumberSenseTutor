@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ExamAnswer, ExamQuestion, ExamResult } from '@/lib/types';
 import { gradeAnswer } from '@/lib/answer';
+import { buildPaper } from '@/lib/build-paper';
+import { fetchExamPool } from '@/data/topics';
 import { EXAM_SECONDS, isStarPosition, scoreExam } from '@/lib/exam';
 import { Latex } from '@/components/ui/latex';
 import { ExamBrief } from '@/components/exam-brief';
@@ -10,7 +12,9 @@ import { ExamResultSheet } from '@/components/exam-result-sheet';
 
 type Stage = 'brief' | 'running' | 'done';
 
-export function ExamRunner({ paper }: { paper: ExamQuestion[] }) {
+export function ExamRunner() {
+  const [paper, setPaper] = useState<ExamQuestion[] | null>(null);
+  const [loadError, setLoadError] = useState(false);
   const [stage, setStage] = useState<Stage>('brief');
   const [index, setIndex] = useState(0);
   const [value, setValue] = useState('');
@@ -23,7 +27,7 @@ export function ExamRunner({ paper }: { paper: ExamQuestion[] }) {
   const answersRef = useRef<ExamAnswer[]>([]);
   answersRef.current = answers;
 
-  const question = paper[index];
+  const question = paper ? paper[index] : undefined;
   const finish = useCallback(() => {
     setResult(scoreExam(answersRef.current));
     setStage('done');
@@ -50,8 +54,23 @@ export function ExamRunner({ paper }: { paper: ExamQuestion[] }) {
     if (stage === 'running') inputRef.current?.focus();
   }, [stage, index]);
 
+  // Assemble a fresh paper in the browser so every sitting differs.
+  useEffect(() => {
+    let cancelled = false;
+    fetchExamPool()
+      .then((pool) => {
+        if (!cancelled) setPaper(buildPaper(pool));
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const commit = (skipped: boolean) => {
-    if (!question) return;
+    if (!question || !paper) return;
     const timeTaken = (Date.now() - questionStart.current) / 1000;
     const correct =
       !skipped &&
@@ -77,10 +96,20 @@ export function ExamRunner({ paper }: { paper: ExamQuestion[] }) {
     }
   };
 
+  if (loadError) {
+    return (
+      <div className="mx-auto max-w-2xl px-5 py-24">
+        <p className="font-question text-lg text-ink">The test did not load.</p>
+        <p className="mt-2 text-sm text-ink-soft">Check your connection and reload the page.</p>
+      </div>
+    );
+  }
+
   if (stage === 'brief') {
     return (
       <ExamBrief
-        questionCount={paper.length}
+        ready={!!paper}
+        questionCount={paper?.length ?? 80}
         onStart={() => {
           questionStart.current = Date.now();
           setStage('running');
@@ -90,7 +119,7 @@ export function ExamRunner({ paper }: { paper: ExamQuestion[] }) {
   }
 
   if (stage === 'done' && result) {
-    return <ExamResultSheet result={result} paper={paper} />;
+    return <ExamResultSheet result={result} paper={paper ?? []} />;
   }
 
   if (!question) return null;

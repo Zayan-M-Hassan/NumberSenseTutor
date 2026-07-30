@@ -3,127 +3,127 @@
     "id": "s1.1",
     "name": "FOILing/LIOFing When Multiplying",
     "summary": "A fast multiplication method for two-digit numbers, and , is LIOFing (Last-Inner+Outer-First).",
-    "questionCount": 48
+    "questionCount": 1000
   },
   {
     "id": "s1.2.1",
     "name": "Multiplying by 11 Trick",
     "summary": "The 11's trick is a simplified version of the “moving down the line” multiplication method.",
-    "questionCount": 58
+    "questionCount": 1000
   },
   {
     "id": "s1.2.2",
     "name": "Multiplying by 101 Trick",
     "summary": "Similar to the 11's trick, multiplying by 101 involves adding digits that are separated by a gap.",
-    "questionCount": 10
+    "questionCount": 1000
   },
   {
     "id": "s1.2.3",
     "name": "Multiplying by 25 Trick",
     "summary": "To multiply a number by 25, you can think of 25 as .",
-    "questionCount": 30
+    "questionCount": 1000
   },
   {
     "id": "s1.2.5",
     "name": "Multiplying by Any Fraction of 100, 1000, etc...",
     "summary": "This trick extends the principles of multiplying by 25 and 75 to other numbers that can be expressed as simple fractions of 100, 1000, etc.",
-    "questionCount": 84
+    "questionCount": 1000
   },
   {
     "id": "s1.2.6",
     "name": "Double and Half Trick",
     "summary": "This trick involves multiplying by a clever version of 1, specifically .",
-    "questionCount": 17
+    "questionCount": 1000
   },
   {
     "id": "s1.2.7",
     "name": "Multiplying Two Numbers Near 100",
     "summary": "This trick simplifies multiplying two numbers that are close to 100 (or 1000, etc.).",
-    "questionCount": 31
+    "questionCount": 1000
   },
   {
     "id": "s1.2.8",
     "name": "Squares Ending in 5 Trick",
     "summary": "Any number ending in 5, when squared, will have a result that ends in 25.",
-    "questionCount": 9
+    "questionCount": 1000
   },
   {
     "id": "s1.2.9",
     "name": "Squares from 41-59",
     "summary": "There is a quick trick for squaring numbers from 41 to 59.",
-    "questionCount": 8
+    "questionCount": 1000
   },
   {
     "id": "s1.2.10",
     "name": "Multiplying Two Numbers Equidistant from a Third Number",
     "summary": "This trick uses the difference of squares formula, .",
-    "questionCount": 46
+    "questionCount": 1000
   },
   {
     "id": "s1.2.11",
     "name": "Multiplying Reverses",
     "summary": "This trick applies to multiplying two two-digit numbers where the digits are reversed (e.g., ).",
-    "questionCount": 12
+    "questionCount": 1000
   },
   {
     "id": "s1.3.1",
     "name": "Extending Foiling",
     "summary": "The FOILing method can be extended to multiply two three-digit numbers by treating the last two digits of each number as a single unit.",
-    "questionCount": 42
+    "questionCount": 1000
   },
   {
     "id": "s1.3.2",
     "name": "Factoring of Numerical Problems",
     "summary": "Many problems that appear computationally intensive can be simplified by factoring out a common number.",
-    "questionCount": 70
+    "questionCount": 1000
   },
   {
     "id": "s1.3.3",
     "name": "Sum of Consecutive Squares",
     "summary": "Problems involving the sum of two consecutive squares often appear on tests.",
-    "questionCount": 6
+    "questionCount": 1000
   },
   {
     "id": "s1.3.4",
     "name": "Sum of Squares: Factoring Method",
     "summary": "Problems that look like can often be simplified by expanding the terms using FOIL.",
-    "questionCount": 21
+    "questionCount": 1000
   },
   {
     "id": "s1.3.5",
     "name": "Sum of Squares: Special Case",
     "summary": "A special case for the sum of squares exists with specific conditions.",
-    "questionCount": 8
+    "questionCount": 1000
   },
   {
     "id": "s1.3.6",
     "name": "Difference of Squares",
     "summary": "The difference of squares is a fundamental algebraic identity: .",
-    "questionCount": 46
+    "questionCount": 1000
   },
   {
     "id": "s1.3.7",
     "name": "Multiplying Two Numbers Ending in 5",
     "summary": "When multiplying two numbers that both end in 5 (e.g., and ), there is a specific trick based on whether the sum of the leading digits () is even or odd.",
-    "questionCount": 8
+    "questionCount": 1000
   },
   {
     "id": "s1.3.8",
     "name": "Multiplying Mixed Numbers",
     "summary": "There are two main tricks for multiplying mixed numbers.",
-    "questionCount": 30
+    "questionCount": 1000
   },
   {
     "id": "s1.3.9",
     "name": "a x a/b Trick",
     "summary": "When multiplying an integer by a fraction of the form , you can use the formula: If the fraction is less than 1, you subtract the difference from .",
-    "questionCount": 22
+    "questionCount": 1000
   },
   {
     "id": "s1.3.10",
     "name": "Combination of Tricks",
     "summary": "This section contains a practice set of problems that require a combination of the multiplication tricks discussed previously.",
-    "questionCount": 39
+    "questionCount": 1000
   },
   {
     "id": "s1.4",
@@ -136,43 +136,43 @@
     "id": "s1.4.1",
     "name": "Finding a Remainder when Dividing by 4, 8, etc...",
     "summary": "To check for divisibility or find the remainder when dividing by powers of 2 (like 4, 8, 16, etc.), you only need to look at the last few digits of the number.",
-    "questionCount": 7
+    "questionCount": 1000
   },
   {
     "id": "s1.4.2",
     "name": "Finding a Remainder when Dividing by 3, 9, etc...",
     "summary": "To find the remainder of a number when divided by 3 or 9, you can use the sum of its digits.",
-    "questionCount": 6
+    "questionCount": 1000
   },
   {
     "id": "s1.4.3",
     "name": "Finding a Remainder when Dividing by 11",
     "summary": "To find the remainder when dividing by 11, you use an alternating sum of the digits.",
-    "questionCount": 10
+    "questionCount": 1000
   },
   {
     "id": "s1.4.4",
     "name": "Finding Remainders of Other Integers",
     "summary": "To find the remainder of a number when divided by a composite number (like 6, 12, or 18), you can find the remainders for its prime factors and then f",
-    "questionCount": 15
+    "questionCount": 1000
   },
   {
     "id": "s1.4.5",
     "name": "Remainders of Expressions",
     "summary": "A key principle of modular arithmetic is that \"the algebra of the remainders is equal to the remainder of the algebra.\" Instead of calculating the res",
-    "questionCount": 27
+    "questionCount": 1000
   },
   {
     "id": "s1.4.6",
     "name": "Dividing by 9 Trick",
     "summary": "This trick extends the remainder rule for 9 to find the full quotient.",
-    "questionCount": 8
+    "questionCount": 1000
   },
   {
     "id": "s1.4.7",
     "name": "Converting a/40 and b/80, etc... to Decimals",
     "summary": "Converting fractions with denominators like 40 or 80 can be simplified by breaking down the process.",
-    "questionCount": 19
+    "questionCount": 1000
   },
   {
     "id": "s1.5",
@@ -185,31 +185,31 @@
     "id": "s1.5.1",
     "name": "Subtracting Reverses",
     "summary": "This trick applies when subtracting two numbers whose digits are reverses of each other (e.g., 715 - 517).",
-    "questionCount": 10
+    "questionCount": 1000
   },
   {
     "id": "s1.5.2",
     "name": "Switching Numbers and Negating on Subtraction",
     "summary": "When a subtraction problem results in a negative answer (e.g., subtracting a larger number from a smaller one), it's often easier to switch the order",
-    "questionCount": 16
+    "questionCount": 1000
   },
   {
     "id": "s1.5.3",
     "name": "Sum of Fractions in a Series",
     "summary": "For a series of fractions where the denominators are products of consecutive integers, like , there's a simple trick to find the sum.",
-    "questionCount": 4
+    "questionCount": 1000
   },
   {
     "id": "s1.5.4",
     "name": "a/b + b/a Trick",
     "summary": "When adding a fraction and its reciprocal, , you can use the formula: For example, .",
-    "questionCount": 20
+    "questionCount": 1000
   },
   {
     "id": "s1.5.5",
     "name": "a/b - (na-1)/(nb+1)",
     "summary": "This section deals with a very specific pattern of fraction subtraction that would be very difficult without knowing the formula.",
-    "questionCount": 20
+    "questionCount": 1000
   },
   {
     "id": "s2.1",
@@ -222,73 +222,73 @@
     "id": "s2.1.1",
     "name": "Squares",
     "summary": "For faster speed in taking the test, squares up to 25 should be memorized, with memorization of squares up to 50 being highly recommended.",
-    "questionCount": 40
+    "questionCount": 1000
   },
   {
     "id": "s2.1.2",
     "name": "Cubes",
     "summary": "Memorizing cubes of numbers is also highly beneficial for speed.",
-    "questionCount": 40
+    "questionCount": 1000
   },
   {
     "id": "s2.1.3",
     "name": "Powers of 2, 3, 5",
     "summary": "Memorizing powers of 2, 3, and 5 is beneficial for a variety of problems, from approximations to logarithms.",
-    "questionCount": 35
+    "questionCount": 1000
   },
   {
     "id": "s2.1.4",
     "name": "Important Fractions",
     "summary": "Memorizing the decimal and percentage conversions for common fractions is essential for speed, especially in the early parts of the test.",
-    "questionCount": 68
+    "questionCount": 1000
   },
   {
     "id": "s2.1.5",
     "name": "Special Integers",
     "summary": "Certain integers have special properties and factorizations that are frequently used in problems.",
-    "questionCount": 64
+    "questionCount": 1000
   },
   {
     "id": "s2.1.6",
     "name": "Roman Numerals",
     "summary": "Roman numeral questions involve converting between Arabic and Roman numerals, as well as basic arithmetic.",
-    "questionCount": 34
+    "questionCount": 1000
   },
   {
     "id": "s2.1.7",
     "name": "Platonic Solids and Euler’s Formula",
     "summary": "This section covers the five Platonic Solids and their properties, which are common topics on tests.",
-    "questionCount": 9
+    "questionCount": 1000
   },
   {
     "id": "s2.1.8",
     "name": "π and e Approximations",
     "summary": "Using standard approximations for π (≈ 3.1) and e (≈ 2.7) can lead to several other useful values for estimation problems (which typically have a ±5% margin of error).",
-    "questionCount": 16
+    "questionCount": 1000
   },
   {
     "id": "s2.1.9",
     "name": "Distance and Velocity Conversions",
     "summary": "Memorizing key conversion factors for distance and velocity is essential.",
-    "questionCount": 19
+    "questionCount": 1000
   },
   {
     "id": "s2.1.10",
     "name": "Conversion between Distance → Area, Volume",
     "summary": "When converting between units of distance, area, and volume, it's crucial to remember to square or cube the linear conversion factor.",
-    "questionCount": 15
+    "questionCount": 1000
   },
   {
     "id": "s2.1.11",
     "name": "Fluid and Weight Conversions",
     "summary": "It is recommended to memorize all common fluid and weight conversions, even those that can be derived, to save time.",
-    "questionCount": 33
+    "questionCount": 1000
   },
   {
     "id": "s2.1.12",
     "name": "Celsius to Fahrenheit Conversions",
     "summary": "Temperature conversion questions are common.",
-    "questionCount": 3
+    "questionCount": 1000
   },
   {
     "id": "s2.2",
@@ -301,85 +301,85 @@
     "id": "s2.2.1",
     "name": "Sum of Series",
     "summary": "Memorizing formulas for the sums of special series is crucial for solving many problems quickly.",
-    "questionCount": 66
+    "questionCount": 1000
   },
   {
     "id": "s2.2.3",
     "name": "Integral Divisors",
     "summary": "This section covers formulas for analyzing the divisors of an integer.",
-    "questionCount": 35
+    "questionCount": 1000
   },
   {
     "id": "s2.2.4",
     "name": "Number of Diagonals of a Polygon",
     "summary": "The number of diagonals in a polygon with vertices (an n-gon) can be calculated with a simple formula.",
-    "questionCount": 50
+    "questionCount": 1000
   },
   {
     "id": "s2.2.5",
     "name": "Exterior/Interior Angles",
     "summary": "For a regular n-gon, there are simple formulas to find its angles: Sum of Exterior Angles: Always 360°.",
-    "questionCount": 8
+    "questionCount": 1000
   },
   {
     "id": "s2.2.6",
     "name": "Triangular, Pentagonal, etc... Numbers",
     "summary": "Polygonal numbers represent the number of dots that can be arranged in the shape of a regular polygon.",
-    "questionCount": 14
+    "questionCount": 1000
   },
   {
     "id": "s2.2.7",
     "name": "Finding Sides of a Triangle",
     "summary": "Triangle problems often involve finding minimum/maximum side lengths based on whether the triangle is right, acute, or obtuse.",
-    "questionCount": 16
+    "questionCount": 1000
   },
   {
     "id": "s2.2.8",
     "name": "Equilateral Triangle Formulas",
     "summary": "Memorizing the formulas for equilateral triangles is essential for solving related geometry problems quickly.",
-    "questionCount": 8
+    "questionCount": 1000
   },
   {
     "id": "s2.2.9",
     "name": "Formulas of Solids",
     "summary": "Basic formulas for the volume and surface area of common 3D shapes are frequently tested.",
-    "questionCount": 9
+    "questionCount": 1000
   },
   {
     "id": "s2.2.10",
     "name": "Combinations and Permutations",
     "summary": "Combinations () and Permutations () are fundamental concepts in combinatorics.",
-    "questionCount": 22
+    "questionCount": 1000
   },
   {
     "id": "s2.2.11",
     "name": "Trigonometric Values",
     "summary": "Trigonometry problems test knowledge of sine, cosine, tangent, and their reciprocals (cosecant, secant, cotangent) for special angles (0°, 30°, 45°, 6",
-    "questionCount": 58
+    "questionCount": 1000
   },
   {
     "id": "s2.2.12",
     "name": "Trigonometric Formulas",
     "summary": "Knowing basic trigonometric identities is essential for simplifying complex expressions.",
-    "questionCount": 26
+    "questionCount": 1000
   },
   {
     "id": "s2.2.13",
     "name": "Graphs of Sines/Cosines",
     "summary": "For the general sine/cosine function , you can determine its properties: Amplitude: Period: Phase Shift (horizontal): Vertical Shift: To find the peri",
-    "questionCount": 12
+    "questionCount": 1000
   },
   {
     "id": "s2.2.14",
     "name": "Vertex of a Parabola",
     "summary": "For a parabola given by the equation , the coordinates of the vertex can be found using the formula: Once you find the x-coordinate, , you can find th",
-    "questionCount": 3
+    "questionCount": 1000
   },
   {
     "id": "s2.2.15",
     "name": "Discriminant and Roots",
     "summary": "The discriminant of a quadratic equation is given by .",
-    "questionCount": 6
+    "questionCount": 1000
   },
   {
     "id": "s3.1",
@@ -392,85 +392,85 @@
     "id": "s3.1.1",
     "name": "GCD and LCM",
     "summary": "Finding the Greatest Common Divisor (GCD) and Least Common Multiple (LCM) is a common task.",
-    "questionCount": 41
+    "questionCount": 1000
   },
   {
     "id": "s3.1.2",
     "name": "Perfect, Abundant, and Deficient Numbers",
     "summary": "Numbers can be classified based on the sum of their proper divisors (divisors excluding the number itself).",
-    "questionCount": 4
+    "questionCount": 1000
   },
   {
     "id": "s3.1.3",
     "name": "Sum and Product of Coefficients in Binomial Expansion",
     "summary": "For a binomial expansion of , the sum of the coefficients can be found by setting and .",
-    "questionCount": 19
+    "questionCount": 1000
   },
   {
     "id": "s3.1.4",
     "name": "Sum/Product of the Roots",
     "summary": "For a polynomial , Vieta's formulas describe the relationship between the coefficients and the sums and products of its roots.",
-    "questionCount": 25
+    "questionCount": 1000
   },
   {
     "id": "s3.1.5",
     "name": "Finding Units Digit of x^n",
     "summary": "The units digit of a number raised to a power follows a repeating cycle.",
-    "questionCount": 9
+    "questionCount": 1000
   },
   {
     "id": "s3.1.6",
     "name": "Exponent Rules",
     "summary": "These problems test basic exponent rules: Product Rule: Quotient Rule: Power Rule: For example, if , then .",
-    "questionCount": 22
+    "questionCount": 1000
   },
   {
     "id": "s3.1.7",
     "name": "Log Rules",
     "summary": "Logarithm problems test your knowledge of fundamental log properties: Definition: Power Rule: Addition/Subtraction: and Change of Base: Approximations are also common: , , , .",
-    "questionCount": 50
+    "questionCount": 1000
   },
   {
     "id": "s3.1.8",
     "name": "Square Root Problems",
     "summary": "A common question involves the multiplication of two square roots together to solve for an integer value.",
-    "questionCount": 12
+    "questionCount": 1000
   },
   {
     "id": "s3.1.9",
     "name": "Finding Approximations of Square Roots",
     "summary": "Approximating square and cube roots of large numbers is a common task.",
-    "questionCount": 29
+    "questionCount": 1000
   },
   {
     "id": "s3.1.10",
     "name": "Complex Numbers",
     "summary": "This section reviews basic operations with complex numbers ().",
-    "questionCount": 34
+    "questionCount": 1000
   },
   {
     "id": "s3.1.11",
     "name": "Function Inverses",
     "summary": "To find the value of an inverse function at a specific point, , it's faster to solve the equation for , rather than finding the general inverse function first.",
-    "questionCount": 24
+    "questionCount": 1000
   },
   {
     "id": "s3.1.12",
     "name": "Patterns",
     "summary": "Pattern problems require identifying the underlying rule of a sequence.",
-    "questionCount": 16
+    "questionCount": 1000
   },
   {
     "id": "s3.1.13",
     "name": "Probability and Odds",
     "summary": "It's important to distinguish between probability and odds.",
-    "questionCount": 30
+    "questionCount": 1000
   },
   {
     "id": "s3.1.14",
     "name": "Sets",
     "summary": "Set theory questions usually involve basic definitions: Intersection (): Elements found in both set A and set B.",
-    "questionCount": 21
+    "questionCount": 1000
   },
   {
     "id": "s3.2",
@@ -483,25 +483,25 @@
     "id": "s3.2.1",
     "name": "Converting Integers",
     "summary": "This section covers the two main processes for converting integers between bases.",
-    "questionCount": 28
+    "questionCount": 1000
   },
   {
     "id": "s3.2.2",
     "name": "Converting Decimals",
     "summary": "Converting a decimal from base-n to a base-10 fraction involves a similar expansion process as with integers, but with negative powers of the base.",
-    "questionCount": 19
+    "questionCount": 1000
   },
   {
     "id": "s3.2.3",
     "name": "Performing Operations",
     "summary": "Arithmetic in other bases follows the same principles as base-10, with adjustments for carrying and borrowing.",
-    "questionCount": 38
+    "questionCount": 1000
   },
   {
     "id": "s3.2.4",
     "name": "Changing Between Bases: Special Case",
     "summary": "A shortcut exists for converting between bases when one base is an integer power of the other (e.g., base-2 to base-8, since ).",
-    "questionCount": 13
+    "questionCount": 1000
   },
   {
     "id": "s3.2.5",
@@ -514,7 +514,7 @@
     "id": "s3.2.6",
     "name": "Changing Bases: Miscellaneous Topics",
     "summary": "This section explores problems that combine base conversions with other mathematical tricks.",
-    "questionCount": 5
+    "questionCount": 1000
   },
   {
     "id": "s3.3",
@@ -534,25 +534,25 @@
     "id": "s3.3.2",
     "name": "In the form: .ababa...",
     "summary": "A decimal with a two-digit repeating pattern, like , can be converted to the fraction , where represents the two-digit number.",
-    "questionCount": 12
+    "questionCount": 1000
   },
   {
     "id": "s3.3.3",
     "name": "In the form: .abbbb...",
     "summary": "For a decimal with a non-repeating part followed by a repeating digit, like , the fractional form is , where is the two-digit number formed by the first two digits.",
-    "questionCount": 4
+    "questionCount": 1000
   },
   {
     "id": "s3.3.4",
     "name": "In the form: .abcbcbc...",
     "summary": "The method for converting repeating decimals can be extended to more complex patterns.",
-    "questionCount": 10
+    "questionCount": 1000
   },
   {
     "id": "s3.4",
     "name": "Modular Arithmetic",
     "summary": "Modular arithmetic deals with remainders.",
-    "questionCount": 14
+    "questionCount": 1000
   },
   {
     "id": "s3.5",
@@ -565,276 +565,276 @@
     "id": "s3.5.1",
     "name": "1*1! + 2*2! + ... + n*n!",
     "summary": "There is a simple and elegant formula for the sum of the series .",
-    "questionCount": 5
+    "questionCount": 1000
   },
   {
     "id": "s3.5.2",
     "name": "a! ± b! / c!",
     "summary": "These problems involve simplifying fractions with factorials.",
-    "questionCount": 20
+    "questionCount": 1000
   },
   {
     "id": "s3.5.3",
     "name": "Wilson's Theorem",
     "summary": "Wilson's Theorem states that for a prime number , the factorial is congruent to (or ) modulo .",
-    "questionCount": 250
+    "questionCount": 1000
   },
   {
     "id": "s3.6.1",
     "name": "Limits",
     "summary": "Most limit problems on the test can be solved by direct substitution.",
-    "questionCount": 248
+    "questionCount": 1000
   },
   {
     "id": "s3.6.2",
     "name": "Derivatives",
     "summary": "Derivative problems on the test almost always involve the power rule for polynomials.",
-    "questionCount": 250
+    "questionCount": 1000
   },
   {
     "id": "s3.6.3",
     "name": "Integration",
     "summary": "Integration problems on the test are typically basic definite integrals of polynomials.",
-    "questionCount": 249
+    "questionCount": 1000
   },
   {
     "id": "s4.1.1",
     "name": "Multiplying Three-Digit Number by Two-Digit Number",
     "summary": "To multiply a three-digit number () by a two-digit number (), you can break it down into smaller, more manageable multiplications.",
-    "questionCount": 246
+    "questionCount": 1000
   },
   {
     "id": "s4.1.2",
     "name": "Multiplying Three-Digit Number by Three-Digit Number",
     "summary": "This is an extension of the previous section and the procedure is the same but requires a little more multiplication and bookkeeping.",
-    "questionCount": 248
+    "questionCount": 1000
   },
   {
     "id": "s4.1.3",
     "name": "Multiplying Two Numbers Whose Units Add to 10 and the Rest is the Same",
     "summary": "This is a generalization of the 'Squares Ending in 5' trick.",
-    "questionCount": 250
+    "questionCount": 1000
   },
   {
     "id": "s4.1.4",
     "name": "Binomial Approximation",
     "summary": "The first-order binomial approximation, , is useful for estimation problems where is much less than 1.",
-    "questionCount": 240
+    "questionCount": 1000
   },
   {
     "id": "s4.1.5",
     "name": "Multiplying by Fraction Close to 1",
     "summary": "This trick involves clever factoring when multiplying a whole number by a fraction close to 1.",
-    "questionCount": 232
+    "questionCount": 1000
   },
   {
     "id": "s4.1.6",
     "name": "n² + n = (n+1)² - (n+1)",
     "summary": "This algebraic identity is useful for calculating expressions of the form , especially when is close to a multiple of 10 or 5.",
-    "questionCount": 245
+    "questionCount": 1000
   },
   {
     "id": "s4.2.1",
     "name": "Conversions, Part 2",
     "summary": "This section covers additional, sometimes obscure, unit conversions that have appeared on recent exams.",
-    "questionCount": 250
+    "questionCount": 1000
   },
   {
     "id": "s4.2.2",
     "name": "Exotic Definitions of Numbers",
     "summary": "This section introduces several unique classifications of numbers: Happy Number: A number whose sum of the squares of its digits eventually leads to 1.",
-    "questionCount": 250
+    "questionCount": 1000
   },
   {
     "id": "s4.2.3",
     "name": "Square Root of Small Integers",
     "summary": "Having decimal approximations of the square roots of small integers memorized is beneficial for estimation problems.",
-    "questionCount": 247
+    "questionCount": 1000
   },
   {
     "id": "s4.2.4",
     "name": "Approximations Using Phi",
     "summary": "In addition to π and e, the golden ratio, φ (phi), is sometimes used in approximation problems.",
-    "questionCount": 246
+    "questionCount": 1000
   },
   {
     "id": "s4.2.5",
     "name": "Standard Fibonacci Numbers",
     "summary": "It’s becoming crucial to have at least the first fourteen Fibonacci numbers memorized as they are frequently used in problems.",
-    "questionCount": 50
+    "questionCount": 1000
   },
   {
     "id": "s4.3.1",
     "name": "Adding Consecutive Terms of Arbitrary Fibonacci Sequence, Method 1",
     "summary": "This method for summing consecutive terms of an Arbitrary Fibonacci Sequence uses a telescoping series.",
-    "questionCount": 242
+    "questionCount": 1000
   },
   {
     "id": "s4.3.2",
     "name": "Adding Consecutive Terms of Arbitrary Fibonacci Sequence, Method 2",
     "summary": "This alternative method for summing the first terms of an Arbitrary Fibonacci Sequence () uses the Standard Fibonacci numbers ().",
-    "questionCount": 240
+    "questionCount": 1000
   },
   {
     "id": "s4.3.3",
     "name": "Adding Odd or Even Terms of Arbitrary Fibonacci Sequence",
     "summary": "There are specific formulas for summing only the odd-indexed or even-indexed terms of an Arbitrary Fibonacci Sequence.",
-    "questionCount": 250
+    "questionCount": 1000
   },
   {
     "id": "s4.3.4",
     "name": "Sum of the Squares of Arbitrary Fibonacci Sequence",
     "summary": "To find the sum of the squares of the first terms of an Arbitrary Fibonacci Sequence (), the formula is: Sum of Squares = For the Standard Fibonacci S",
-    "questionCount": 245
+    "questionCount": 1000
   },
   {
     "id": "s4.4.1",
     "name": "Additional Formulas: a/b - (na-1)/(nb-1)",
     "summary": "This is a supplement to the formulas in Section 1.5.5, dealing with specific forms of fraction subtraction.",
-    "questionCount": 250
+    "questionCount": 1000
   },
   {
     "id": "s4.4.2",
     "name": "Factorizations",
     "summary": "This section covers less common but useful factorizations that appear on tests.",
-    "questionCount": 248
+    "questionCount": 1000
   },
   {
     "id": "s4.4.3",
     "name": "Sum of the Reciprocals of Triangular Numbers",
     "summary": "This problem involves finding the sum of the reciprocals of a series of consecutive triangular numbers.",
-    "questionCount": 248
+    "questionCount": 1000
   },
   {
     "id": "s4.4.4",
     "name": "Geometric and Harmonic Means",
     "summary": "This section covers two types of means that appear on tests.",
-    "questionCount": 249
+    "questionCount": 1000
   },
   {
     "id": "s4.4.5",
     "name": "Distance Between a Point and a Line",
     "summary": "To find the distance from a point to a line , use the formula: Distance = This involves substituting the point's coordinates into the line's equation",
-    "questionCount": 250
+    "questionCount": 1000
   },
   {
     "id": "s4.4.6",
     "name": "Distance Between Two Parallel Lines",
     "summary": "To find the distance between two parallel lines, and , use the formula: Distance = This formula finds the difference in the constant terms and divides",
-    "questionCount": 249
+    "questionCount": 1000
   },
   {
     "id": "s4.5.1",
     "name": "More on Sets",
     "summary": "This section delves into combinatorics problems presented as set theory questions.",
-    "questionCount": 248
+    "questionCount": 1000
   },
   {
     "id": "s4.5.2",
     "name": "Repeating Decimals in Reverse",
     "summary": "These problems give you a fraction and ask for the first few digits of its decimal representation.",
-    "questionCount": 244
+    "questionCount": 1000
   },
   {
     "id": "s4.5.3",
     "name": "Repeating Decimals in Other Bases - Convert to Base 10",
     "summary": "To convert a repeating decimal in another base to a base-10 fraction, you can use the infinite geometric series formula or apply the same logic as bas",
-    "questionCount": 248
+    "questionCount": 1000
   },
   {
     "id": "s4.5.4",
     "name": "Repeating Decimals in Other Bases - Keeping Same Base",
     "summary": "To convert a repeating decimal in base to a fraction in the same base, you can first convert to a base-10 fraction and then convert the numerator and denominator back to base .",
-    "questionCount": 248
+    "questionCount": 1000
   },
   {
     "id": "s4.5.5",
     "name": "Remainders with a/p, b/p, and ab/p",
     "summary": "These problems test the principle that \"the algebra of remainders equals the remainder of the algebra.\" You are given the remainders of expressions in",
-    "questionCount": 250
+    "questionCount": 1000
   },
   {
     "id": "s4.5.6",
     "name": "Minimal and Maximum Value of Expressions",
     "summary": "To find the minimum or maximum value of an expression, calculus (finding the derivative and setting it to zero) can be a slow method.",
-    "questionCount": 250
+    "questionCount": 1000
   },
   {
     "id": "s5.1.1",
     "name": "Systems of Two Linear Equations",
     "summary": "Number sense systems are built to collapse in one step.",
-    "questionCount": 70
+    "questionCount": 1000
   },
   {
     "id": "s5.1.2",
     "name": "Reflections, Midpoints and Distance",
     "summary": "Reflecting a point is pure bookkeeping once you know the four rules: across the -axis ; across the -axis ; across the coordinates swap, ; across they swap and b",
-    "questionCount": 70
+    "questionCount": 1000
   },
   {
     "id": "s5.1.3",
     "name": "Parabolas: Directrix, Focus and Vertex",
     "summary": "Write the parabola as or .",
-    "questionCount": 24
+    "questionCount": 1000
   },
   {
     "id": "s5.1.4",
     "name": "Vectors: Components and Magnitude",
     "summary": "A vector from initial point to terminal point has components — terminal minus initial, in that order.",
-    "questionCount": 70
+    "questionCount": 1000
   },
   {
     "id": "s5.1.5",
     "name": "Determinants of 2x2 and 3x3 Matrices",
     "summary": "For a matrix the determinant is : down-product minus up-product.",
-    "questionCount": 70
+    "questionCount": 1000
   },
   {
     "id": "s5.1.6",
     "name": "Inverse Trigonometric Values",
     "summary": "Inverse trig answers are angles, and contest papers ask for them as a multiple of : \" radians, find .\" Memorise the principal values.",
-    "questionCount": 31
+    "questionCount": 1000
   },
   {
     "id": "s5.1.7",
     "name": "Double Integrals over Rectangles",
     "summary": "Over a rectangle with constant limits, a double integral of a separable integrand splits into a product of two ordinary integrals: .",
-    "questionCount": 70
+    "questionCount": 1000
   },
   {
     "id": "s5.2.1",
     "name": "Texas Land Units: Varas and Leagues",
     "summary": "Texas surveying units show up on every UIL paper, usually as a starred problem.",
-    "questionCount": 70
+    "questionCount": 1000
   },
   {
     "id": "s5.2.2",
     "name": "Rate Conversions: ft/s, mph and km/h",
     "summary": "The one factor worth memorising: mph is exactly ft/s.",
-    "questionCount": 50
+    "questionCount": 1000
   },
   {
     "id": "s5.2.3",
     "name": "Relatively Prime Counts and Euler’s Totient",
     "summary": "Euler's totient counts the positive integers less than that share no factor with .",
-    "questionCount": 70
+    "questionCount": 1000
   },
   {
     "id": "s5.2.4",
     "name": "Area and Perimeter under Dilation",
     "summary": "Scale every length by and the consequences are fixed: perimeter scales by , area by , volume by .",
-    "questionCount": 70
+    "questionCount": 1000
   },
   {
     "id": "s5.2.5",
     "name": "Mean, Median, Mode and Range",
     "summary": "Four quantities, four different operations.",
-    "questionCount": 70
+    "questionCount": 1000
   },
   {
     "id": "s5.2.6",
     "name": "Counting Problems with Digits",
     "summary": "\"How many 3-digit numbers have digits summing to ?\" is a stars-and-bars count with a constraint: the leading digit cannot be zero and no digit exceeds 9.",
-    "questionCount": 20
+    "questionCount": 1000
   }
 ]

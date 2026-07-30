@@ -6,7 +6,7 @@ import {
   parseInput,
   terminates,
 } from './answer';
-import topics from '@/data/math-topics.json';
+import { loadBank } from './test-bank';
 import type { MathTopic } from './types';
 
 const exact = { kind: 'exact' } as const;
@@ -206,7 +206,7 @@ describe('regression: the exact bug that made 1,967 questions unwinnable', () =>
 });
 
 describe('whole-bank guard', () => {
-  const data = topics as unknown as MathTopic[];
+  const data = loadBank();
   const answers = data.flatMap((t) => t.questions.map((q) => String(q.answer)));
 
   it('parses every answer in the question bank', () => {

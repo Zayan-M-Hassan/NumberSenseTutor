@@ -6,9 +6,11 @@
  */
 export function ExamBrief({
   questionCount,
+  ready,
   onStart,
 }: {
   questionCount: number;
+  ready: boolean;
   onStart: () => void;
 }) {
   return (
@@ -37,9 +39,10 @@ export function ExamBrief({
 
       <button
         onClick={onStart}
-        className="mt-10 rounded-sm bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
+        disabled={!ready}
+        className="mt-10 rounded-sm bg-ink px-6 py-3 text-sm font-medium text-paper transition-colors hover:bg-ink/85 disabled:opacity-40"
       >
-        Begin — the clock starts now
+        {ready ? 'Begin — the clock starts now' : 'Building your paper…'}
       </button>
     </div>
   );

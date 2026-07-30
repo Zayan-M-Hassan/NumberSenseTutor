@@ -8,10 +8,10 @@
  */
 import { describe, expect, it } from 'vitest';
 import { parseAnswer } from './answer';
-import data from '@/data/math-topics.json';
+import { loadBank } from './test-bank';
 import type { MathTopic } from './types';
 
-const topics = data as unknown as MathTopic[];
+const topics = loadBank();
 const byId = (id: string) => topics.find((t) => t.id === id)!;
 
 const value = (a: string) => {
@@ -31,7 +31,7 @@ describe('generated topics exist and are non-empty', () => {
   it.each(ids)('%s has questions', (id) => {
     const t = byId(id);
     expect(t).toBeDefined();
-    expect(t.questions.length).toBeGreaterThan(15);
+    expect(t.questions.length).toBeGreaterThanOrEqual(1000);
   });
 
   it('every generated answer parses', () => {
@@ -101,7 +101,12 @@ describe('s5.2.3 totient counts recompute by brute force', () => {
 describe('s5.2.2 rate conversions use the exact 22/15 ratio', () => {
   it('60 mph is 88 ft/s, and every question follows that ratio', () => {
     for (const q of byId('s5.2.2').questions) {
-      const toFps = q.text.match(/^(\d+) miles per hour/);
+      const perMinute = q.text.match(/^(\d+) miles per hour = ______ miles per minute/);
+      if (perMinute) {
+        expect(value(q.answer)).toBeCloseTo(Number(perMinute[1]) / 60, 9);
+        continue;
+      }
+      const toFps = q.text.match(/^(\d+) miles per hour = ______ feet per second/);
       if (toFps) {
         expect(value(q.answer)).toBeCloseTo((Number(toFps[1]) * 22) / 15, 9);
         continue;
@@ -168,16 +173,27 @@ describe('s5.2.6 digit-sum counts recompute by enumeration', () => {
 describe('s5.1.7 double integrals over rectangles', () => {
   it('equals the product of the two single integrals', () => {
     for (const q of byId('s5.1.7').questions) {
+      // Exponents appear as y^2 in the earlier entries and y^{2} in later ones.
       const m = q.text.match(
-        /\\int_\{(\d+)\}\^\{(\d+)\} \\int_\{(\d+)\}\^\{(\d+)\} (x(?:\^\d)?)(y(?:\^\d)?)/
+        /\\int_\{(\d+)\}\^\{(\d+)\} \\int_\{(\d+)\}\^\{(\d+)\} (x(?:\^\{?\d+\}?)?)(y(?:\^\{?\d+\}?)?)/
       );
       if (!m) continue;
       const [a, b, c, d] = m.slice(1, 5).map(Number);
-      const mPow = m[5].includes('^') ? Number(m[5].split('^')[1]) : 1;
-      const nPow = m[6].includes('^') ? Number(m[6].split('^')[1]) : 1;
+      const powOf = (t: string) => {
+        const e = t.match(/\^\{?(\d+)\}?/);
+        return e ? Number(e[1]) : 1;
+      };
+      const mPow = powOf(m[5]);
+      const nPow = powOf(m[6]);
       const ix = (b ** (mPow + 1) - a ** (mPow + 1)) / (mPow + 1);
       const iy = (d ** (nPow + 1) - c ** (nPow + 1)) / (nPow + 1);
-      expect(value(q.answer)).toBeCloseTo(ix * iy, 9);
+      // Relative tolerance: these run into the millions, where an absolute
+      // 1e-9 bound is tighter than double precision can express.
+      const expected = ix * iy;
+      const actual = value(q.answer);
+      expect(Math.abs(actual - expected)).toBeLessThanOrEqual(
+        1e-9 * Math.max(1, Math.abs(expected))
+      );
     }
   });
 });
@@ -189,7 +205,12 @@ describe('s5.1.3 parabola directrix and focus', () => {
       if (!m) continue;
       const a = m[2] === '' ? 1 : m[2] === '-' ? -1 : Number(m[2]);
       const p = 1 / (4 * a);
-      expect(value(q.answer)).toBeCloseTo(/focus/.test(q.text) ? p : -p, 9);
+      const expected = /latus rectum/.test(q.text)
+        ? 1 / Math.abs(a)
+        : /focus/.test(q.text)
+          ? p
+          : -p;
+      expect(value(q.answer)).toBeCloseTo(expected, 9);
     }
   });
 });

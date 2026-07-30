@@ -2,10 +2,10 @@
  * Read-only audit of the question bank. Run: npx tsx scripts/audit.ts
  */
 import { approximateRange, parseAnswer } from '../src/lib/answer';
-import data from '../src/data/math-topics.json';
+import { loadBank } from '../src/lib/test-bank';
 import type { MathTopic } from '../src/lib/types';
 
-const topics = data as unknown as MathTopic[];
+const topics = loadBank();
 
 let starred = 0;
 const emptyRange: Array<{ t: string; text: string; a: string }> = [];

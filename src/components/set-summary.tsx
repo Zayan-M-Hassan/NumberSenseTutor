@@ -1,15 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import type { Topic } from '@/lib/types';
-
 /** Shown when a practice set runs out of questions. */
 export function SetSummary({
-  topic,
+  topicId,
+  topicName,
   stats,
   onAgain,
 }: {
-  topic: Topic;
+  topicId: string;
+  topicName: string;
   stats: { attempted: number; correct: number; totalTime: number };
   onAgain: () => void;
 }) {
@@ -20,7 +20,7 @@ export function SetSummary({
   return (
     <div className="mx-auto max-w-2xl px-5 pb-24 pt-16">
       <p className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">Set complete</p>
-      <h1 className="mt-2 font-question text-3xl text-ink">{topic.name}</h1>
+      <h1 className="mt-2 font-question text-3xl text-ink">{topicName}</h1>
 
       <dl className="mt-10 divide-y divide-rule border-y border-rule">
         <Row label="Score" value={`${stats.correct} / ${stats.attempted}`} />
@@ -41,7 +41,7 @@ export function SetSummary({
           Another set
         </button>
         <Link
-          href={`/topics/${topic.id}`}
+          href={`/topics/${topicId}`}
           className="rounded-sm border border-rule-strong px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-ink"
         >
           Read the trick

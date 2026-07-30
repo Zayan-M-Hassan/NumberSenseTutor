@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import type { Question, Topic } from '@/lib/types';
+import type { Question } from '@/lib/types';
 import { gradeAnswer } from '@/lib/answer';
+import { fetchQuestions } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
 import { useSession } from '@/hooks/use-session';
 import { useSettings } from '@/hooks/use-settings';
@@ -36,11 +37,21 @@ function rejectionNote(reason: string | undefined): string | null {
   }
 }
 
-export function PracticeRunner({ topic }: { topic: Topic }) {
+export function PracticeRunner({
+  topicId,
+  topicName,
+}: {
+  topicId: string;
+  topicName: string;
+}) {
   const { settings } = useSettings();
   const { getTopicProgress, recordAnswer, completeSet, loaded } = useProgress();
+
+  const [questions, setQuestions] = useState<Question[] | null>(null);
+  const [loadError, setLoadError] = useState(false);
+
   const size = settings.questionsPerSet;
-  const session = useSession(topic.id, topic.questions, size);
+  const session = useSession(topicId, questions ?? [], size);
 
   const [value, setValue] = useState('');
   const [verdict, setVerdict] = useState<Verdict | null>(null);
@@ -49,17 +60,30 @@ export function PracticeRunner({ topic }: { topic: Topic }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const startedAt = useRef<number>(Date.now());
 
+  // The question bank is a static asset, not part of this page's payload.
+  useEffect(() => {
+    let cancelled = false;
+    fetchQuestions(topicId)
+      .then((qs) => {
+        if (!cancelled) setQuestions(qs);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [topicId]);
+
   const question: Question | null = session.current;
   const starred = question?.kind === 'approximate';
 
-  // Kick off a set once progress has loaded and there is nothing in flight.
   useEffect(() => {
-    if (!loaded || session.session) return;
-    session.start(getTopicProgress(topic.id).seenQuestionIds);
+    if (!loaded || !questions || session.session) return;
+    session.start(getTopicProgress(topicId).seenQuestionIds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded, session.session]);
+  }, [loaded, questions, session.session]);
 
-  // Per-question clock.
   useEffect(() => {
     if (!question || verdict) return;
     startedAt.current = Date.now();
@@ -78,16 +102,15 @@ export function PracticeRunner({ topic }: { topic: Topic }) {
     session.advance();
   }, [session]);
 
-  // Finish: capture the set's numbers before completeSet clears them.
   useEffect(() => {
     if (!session.done || summary) return;
-    const p = getTopicProgress(topic.id);
+    const p = getTopicProgress(topicId);
     setSummary({
       attempted: p.currentSet.questionsAttempted,
       correct: p.currentSet.questionsCorrect,
       totalTime: p.currentSet.totalTime,
     });
-    completeSet(topic.id);
+    completeSet(topicId);
     session.finish();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.done]);
@@ -108,25 +131,32 @@ export function PracticeRunner({ topic }: { topic: Topic }) {
       requiredForm: question.requiredForm,
     });
 
-    recordAnswer(topic.id, { questionId: question.id, isCorrect: result.correct, timeTaken });
-
-    if (result.correct) {
-      // Correct answers move straight on: no dialog, no click.
-      setVerdict({ ...result, response: value });
-      window.setTimeout(advance, 320);
-    } else {
-      setVerdict({ ...result, response: value });
-    }
+    recordAnswer(topicId, { questionId: question.id, isCorrect: result.correct, timeTaken });
+    setVerdict({ ...result, response: value });
+    if (result.correct) window.setTimeout(advance, 320);
   };
+
+  if (loadError) {
+    return (
+      <div className="mx-auto max-w-2xl px-5 py-24">
+        <p className="font-question text-lg text-ink">This topic&rsquo;s questions did not load.</p>
+        <p className="mt-2 text-sm text-ink-soft">Check your connection and reload the page.</p>
+        <Link href="/" className="mt-6 inline-block text-sm text-ink-soft underline hover:text-ink">
+          Back to topics
+        </Link>
+      </div>
+    );
+  }
 
   if (summary) {
     return (
       <SetSummary
-        topic={topic}
+        topicId={topicId}
+        topicName={topicName}
         stats={summary}
         onAgain={() => {
           setSummary(null);
-          session.start(getTopicProgress(topic.id).seenQuestionIds);
+          session.start(getTopicProgress(topicId).seenQuestionIds);
         }}
       />
     );
@@ -135,8 +165,9 @@ export function PracticeRunner({ topic }: { topic: Topic }) {
   if (!question) {
     return (
       <div className="mx-auto max-w-2xl px-5 py-24">
-        <div className="h-4 w-32 animate-pulse rounded-sm bg-surface" />
-        <div className="mt-8 h-10 w-full animate-pulse rounded-sm bg-surface" />
+        <div className="h-3 w-32 animate-pulse rounded-sm bg-surface" />
+        <div className="mt-10 h-8 w-3/4 animate-pulse rounded-sm bg-surface" />
+        <div className="mt-10 h-10 w-full animate-pulse rounded-sm bg-surface" />
       </div>
     );
   }
@@ -147,11 +178,11 @@ export function PracticeRunner({ topic }: { topic: Topic }) {
     <div className="mx-auto max-w-2xl px-5 pb-24 pt-8">
       <div className="flex items-baseline justify-between gap-4">
         <Link
-          href={`/topics/${topic.id}`}
+          href={`/topics/${topicId}`}
           className="inline-flex items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-ink"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          {topic.name}
+          {topicName}
         </Link>
         <span className="tabular font-mono text-xs uppercase tracking-wider text-ink-faint">
           {session.position} / {session.total}
@@ -160,7 +191,6 @@ export function PracticeRunner({ topic }: { topic: Topic }) {
 
       <PaceBar elapsed={elapsed} target={7.5} frozen={!!verdict} className="mt-4" />
 
-      {/* The question. Margin asterisk exactly as it appears on the paper. */}
       <div className="relative mt-12">
         {starred && (
           <span
@@ -203,7 +233,6 @@ export function PracticeRunner({ topic }: { topic: Topic }) {
           />
         </div>
 
-        {/* Result sets in the same position the answer key would print it. */}
         <div id="verdict" aria-live="polite" className="mt-4 min-h-[3.25rem]">
           {verdict && !verdict.correct && (
             <div className="animate-slide-up">
@@ -237,7 +266,7 @@ export function PracticeRunner({ topic }: { topic: Topic }) {
           </button>
 
           <Link
-            href={`/topics/${topic.id}`}
+            href={`/topics/${topicId}`}
             className="inline-flex items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-ink"
           >
             <BookOpen className="h-3.5 w-3.5" />
