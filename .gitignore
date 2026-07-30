@@ -43,3 +43,5 @@ next-env.d.ts
 # firebase
 firebase-debug.log
 firestore-debug.log
+# UIL research material (copyrighted tests - local reference only)
+/research

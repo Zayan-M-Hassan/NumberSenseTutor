@@ -1,29 +1,20 @@
-
-'use client';
-
-import { useState } from 'react';
-import { getTopics } from '@/data/topics';
-import { TopicList } from '@/components/topic-list';
-import type { TopicStatus } from '@/lib/types';
+import { getTopicIndex, SECTIONS, sectionOf } from '@/data/topics';
+import { PaceThesis } from '@/components/pace-thesis';
+import { TopicIndex } from '@/components/topic-index';
 
 export default function Home() {
-  const topics = getTopics();
-  const [filter, setFilter] = useState<TopicStatus | 'all'>('all');
+  const topics = getTopicIndex().filter((t) => !t.section && t.questionCount > 0);
+  const totalQuestions = topics.reduce((n, t) => n + t.questionCount, 0);
+
+  const grouped = SECTIONS.map((s) => ({
+    ...s,
+    topics: topics.filter((t) => sectionOf(t.id) === s.key),
+  })).filter((s) => s.topics.length > 0);
 
   return (
-    <div className="container mx-auto max-w-5xl py-8 px-4">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold font-headline mb-4">
-          Welcome to Number Sense Tutor
-        </h1>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-          Sharpen your estimation skills with AI-generated questions. Choose a
-          topic below to begin your practice session and see how well you can
-          estimate.
-        </p>
-      </div>
-
-      <TopicList topics={topics} />
+    <div className="mx-auto max-w-3xl px-5 pb-24">
+      <PaceThesis topicCount={topics.length} questionCount={totalQuestions} />
+      <TopicIndex sections={grouped} />
     </div>
   );
 }

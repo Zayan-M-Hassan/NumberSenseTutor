@@ -2,90 +2,95 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Number Sense Tutor — "contest paper, precision instrument".
+ *
+ * The palette encodes the one binary that runs through the whole subject:
+ * a problem is either EXACT or STARRED (approximate, within 5%). Those two
+ * states get the two accent colours, everywhere, consistently. Nothing else
+ * competes with them.
+ */
+
 @layer base {
   :root {
-    --background: 190 67% 93%;
-    --foreground: 224 71% 4%;
+    --paper: 40 33% 99%;
+    --ink: 216 26% 9%;
+    --ink-soft: 216 12% 42%;
+    --ink-faint: 216 10% 62%;
+    --rule: 220 14% 87%;
+    --rule-strong: 216 18% 72%;
+    --surface: 40 20% 97%;
+
+    /*
+     * These three carry identity in both the UI and the charts, so they are
+     * treated as a categorical set and validated as one: lightness band,
+     * chroma floor, CVD separation, normal-vision floor and contrast all pass
+     * against the light surface. Do not nudge them by eye — re-run the
+     * validator (see docs) if they change.
+     */
+    /* Exact problems, primary actions. Deep contest blue. */
+    --exact: 213 68% 38%;
+    --exact-soft: 213 62% 94%;
+    /* Starred problems. Burnt orange, the colour of the asterisk. */
+    --approx: 20 91% 40%;
+    --approx-soft: 24 88% 95%;
+
+    --correct: 158 78% 27%;
+    --correct-soft: 158 60% 94%;
+    --wrong: 0 66% 44%;
+    --wrong-soft: 0 72% 96%;
+
+    --radius: 3px;
+
+    /* shadcn compatibility — mapped onto the tokens above. */
+    --background: var(--paper);
+    --foreground: var(--ink);
     --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
+    --card-foreground: var(--ink);
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-    --primary: 197 71% 52%;
+    --popover-foreground: var(--ink);
+    --primary: var(--exact);
     --primary-foreground: 0 0% 100%;
-    --secondary: 190 20% 85%;
-    --secondary-foreground: 224 71% 4%;
-    --muted: 190 20% 85%;
-    --muted-foreground: 224 20% 30%;
-    --accent: 33 100% 50%;
+    --secondary: var(--surface);
+    --secondary-foreground: var(--ink);
+    --muted: var(--surface);
+    --muted-foreground: var(--ink-soft);
+    --accent: var(--approx);
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 190 20% 80%;
-    --input: 190 20% 80%;
-    --ring: 197 71% 52%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-  }
-
-  .theme-mint {
-    --primary: 160 60% 45%;
-    --accent: 150 70% 40%;
-  }
-
-  .theme-rose {
-    --primary: 340 82% 60%;
-    --accent: 345 90% 70%;
-  }
-
-  .theme-violet {
-    --primary: 260 70% 65%;
-    --accent: 270 80% 70%;
-  }
-
-  .theme-amber {
-    --primary: 35 91% 55%;
-    --accent: 45 95% 55%;
-  }
-
-  .theme-teal {
-    --primary: 180 80% 40%;
-    --accent: 170 80% 45%;
-  }
-
-  .theme-cyan {
-    --primary: 190 85% 50%;
-    --accent: 200 90% 55%;
+    --destructive: var(--wrong);
+    --destructive-foreground: 0 0% 100%;
+    --border: var(--rule);
+    --input: var(--rule-strong);
+    --ring: var(--exact);
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 0 0% 98%;
-    --card: 224 71% 4%;
-    --card-foreground: 0 0% 98%;
-    --popover: 224 71% 4%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 197 71% 52%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 224 20% 10%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 224 20% 10%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 33 100% 50%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 224 20% 20%;
-    --input: 224 20% 20%;
-    --ring: 197 71% 52%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --paper: 217 30% 7%;
+    --ink: 40 20% 95%;
+    --ink-soft: 217 12% 65%;
+    --ink-faint: 217 10% 45%;
+    --rule: 217 18% 22%;
+    --rule-strong: 217 14% 34%;
+    --surface: 217 26% 11%;
+
+    /* Dark mode is stepped and validated separately, not flipped. */
+    --exact: 208 88% 55%;
+    --exact-soft: 213 40% 18%;
+    --approx: 26 88% 46%;
+    --approx-soft: 22 40% 16%;
+
+    --correct: 158 62% 42%;
+    --correct-soft: 158 40% 14%;
+    --wrong: 2 78% 66%;
+    --wrong-soft: 2 40% 16%;
+
+    --card: 217 28% 9%;
+    --card-foreground: var(--ink);
+    --popover: 217 28% 9%;
+    --popover-foreground: var(--ink);
+    --primary-foreground: 217 30% 7%;
+    --accent-foreground: 217 30% 7%;
+    --destructive-foreground: 217 30% 7%;
   }
 }
 
@@ -93,7 +98,117 @@
   * {
     @apply border-border;
   }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: 'kern' 1;
+  }
+
+  /* Timers, scores and question counters are instrumentation: tabular. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--exact));
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /*
+   * The signature element: the answer blank from a real contest paper.
+   * Not a box — a rule you write on.
+   */
+  .answer-rule {
+    @apply w-full bg-transparent font-question text-ink;
+    border: 0;
+    border-bottom: 2px solid hsl(var(--rule-strong));
+    border-radius: 0;
+    padding: 0.15em 0.1em 0.12em;
+    transition: border-color 140ms ease, background-color 140ms ease;
+  }
+
+  .answer-rule:focus {
+    outline: none;
+    border-bottom-color: hsl(var(--exact));
+  }
+
+  .answer-rule[data-star='true']:focus {
+    border-bottom-color: hsl(var(--approx));
+  }
+
+  .answer-rule[data-state='correct'] {
+    border-bottom-color: hsl(var(--correct));
+  }
+
+  .answer-rule[data-state='wrong'] {
+    border-bottom-color: hsl(var(--wrong));
+  }
+
+  .answer-rule::placeholder {
+    color: hsl(var(--ink-faint));
+  }
+
+  /*
+   * Lesson prose. The content HTML carries its own utility classes, but those
+   * live in a data file that Tailwind never scans, so they get purged — the
+   * spacing has to be defined here.
+   */
+  .lesson > p {
+    margin-bottom: 1.15em;
+  }
+
+  .lesson > p:last-child {
+    margin-bottom: 0;
+  }
+
+  .lesson strong {
+    font-weight: 600;
+  }
+
+  .lesson ul,
+  .lesson ol {
+    margin: 0 0 1.15em 1.25em;
+    list-style: revert;
+  }
+
+  .lesson li {
+    margin-bottom: 0.35em;
+  }
+
+  .lesson table {
+    width: 100%;
+    margin-bottom: 1.15em;
+    border-collapse: collapse;
+  }
+
+  .lesson th,
+  .lesson td {
+    border-bottom: 1px solid hsl(var(--rule));
+    padding: 0.4em 0.6em;
+    text-align: left;
+  }
+
+  /* The margin asterisk, exactly as it appears on the paper. */
+  .star-mark {
+    @apply font-question text-approx select-none;
+    line-height: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

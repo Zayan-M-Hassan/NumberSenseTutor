@@ -1,180 +1,114 @@
 'use client';
 
+import { useState } from 'react';
 import { useTheme } from 'next-themes';
 import { useSettings } from '@/hooks/use-settings';
 import { useProgress } from '@/hooks/use-progress';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { useToast } from '@/hooks/use-toast';
-import { Slider } from '@/components/ui/slider';
+import { cn } from '@/lib/utils';
+
+const SET_SIZES = [5, 10, 20, 40, 80];
+const MODES = ['light', 'dark', 'system'] as const;
 
 export default function SettingsPage() {
   const { settings, saveSettings } = useSettings();
-  const { clearProgress } = useProgress();
-  const { setTheme } = useTheme();
-  const { toast } = useToast();
+  const { clearProgress, progress } = useProgress();
+  const { theme, setTheme } = useTheme();
+  const [confirming, setConfirming] = useState(false);
 
-  const handleClearProgress = () => {
-    clearProgress();
-    toast({
-      title: 'Progress Cleared',
-      description: 'Your practice history has been successfully reset.',
-    });
-  };
+  const topicsTouched = Object.keys(progress.topics).length;
 
   return (
-    <div className="container max-w-2xl mx-auto py-10">
-      <h1 className="text-3xl font-bold font-headline mb-8">Settings</h1>
-      <div className="space-y-8">
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">Practice</CardTitle>
-            <CardDescription>Customize your practice sessions.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="questions-per-set">Questions per set</Label>
-                  <span className="text-sm text-muted-foreground font-medium">
-                    {settings.questionsPerSet}
-                  </span>
-                </div>
-                <Slider
-                  id="questions-per-set"
-                  min={5}
-                  max={100}
-                  step={5}
-                  value={[settings.questionsPerSet]}
-                  onValueChange={(value) =>
-                    saveSettings({ questionsPerSet: value[0] })
-                  }
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="mx-auto max-w-2xl px-5 pb-24 pt-16">
+      <h1 className="font-question text-3xl text-ink">Settings</h1>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">Appearance</CardTitle>
-            <CardDescription>Adjust how the app looks.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="color-theme">Color Theme</Label>
-              <Select
-                value={settings.colorTheme}
-                onValueChange={(value) => {
-                  saveSettings({ colorTheme: value });
-                }}
-              >
-                <SelectTrigger id="color-theme" className="w-[180px]">
-                  <SelectValue placeholder="Select theme" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="theme-default">Default</SelectItem>
-                  <SelectItem value="theme-mint">Mint</SelectItem>
-                  <SelectItem value="theme-rose">Rose</SelectItem>
-                  <SelectItem value="theme-violet">Violet</SelectItem>
-                  <SelectItem value="theme-amber">Amber</SelectItem>
-                  <SelectItem value="theme-teal">Teal</SelectItem>
-                  <SelectItem value="theme-cyan">Cyan</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="theme">Mode</Label>
-              <Select
-                value={settings.theme}
-                onValueChange={(value) => {
-                  saveSettings({
-                    theme: value as 'light' | 'dark' | 'system',
-                  });
-                  setTheme(value as 'light' | 'dark' | 'system');
-                }}
-              >
-                <SelectTrigger id="theme" className="w-[180px]">
-                  <SelectValue placeholder="Select theme" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
+      <section className="mt-12">
+        <h2 className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
+          Questions per set
+        </h2>
+        <p className="mt-2 text-sm text-ink-soft">
+          A full contest paper is 80. Shorter sets are for drilling one trick.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {SET_SIZES.map((n) => (
+            <button
+              key={n}
+              onClick={() => saveSettings({ questionsPerSet: n })}
+              aria-pressed={settings.questionsPerSet === n}
+              className={cn(
+                'tabular rounded-sm border px-4 py-2 font-mono text-sm transition-colors',
+                settings.questionsPerSet === n
+                  ? 'border-ink bg-ink text-paper'
+                  : 'border-rule-strong text-ink-soft hover:border-ink hover:text-ink'
+              )}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline text-destructive">
-              Danger Zone
-            </CardTitle>
-            <CardDescription>
-              These actions are irreversible. Please proceed with caution.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="pr-4">
-                <p className="font-medium">Clear All Progress</p>
-                <p className="text-sm text-muted-foreground">
-                  This will permanently delete all your practice history and
-                  scores.
-                </p>
-              </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive">Clear Progress</Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      all your practice data from this device.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleClearProgress}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <section className="mt-12">
+        <h2 className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">Appearance</h2>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {MODES.map((m) => (
+            <button
+              key={m}
+              onClick={() => {
+                setTheme(m);
+                saveSettings({ theme: m });
+              }}
+              aria-pressed={theme === m}
+              className={cn(
+                'rounded-sm border px-4 py-2 text-sm capitalize transition-colors',
+                theme === m
+                  ? 'border-ink bg-ink text-paper'
+                  : 'border-rule-strong text-ink-soft hover:border-ink hover:text-ink'
+              )}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-16 border-t border-rule pt-8">
+        <h2 className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
+          Clear progress
+        </h2>
+        <p className="mt-2 max-w-md text-sm text-ink-soft">
+          Deletes your scores, history and which questions you have seen, on this device. It cannot
+          be undone.
+        </p>
+        {!confirming ? (
+          <button
+            onClick={() => setConfirming(true)}
+            disabled={topicsTouched === 0}
+            className="mt-4 rounded-sm border border-rule-strong px-4 py-2 text-sm text-ink-soft transition-colors hover:border-wrong hover:text-wrong disabled:opacity-40 disabled:hover:border-rule-strong disabled:hover:text-ink-soft"
+          >
+            {topicsTouched === 0
+              ? 'Nothing to clear'
+              : `Clear ${topicsTouched} ${topicsTouched === 1 ? 'topic' : 'topics'}`}
+          </button>
+        ) : (
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              onClick={() => {
+                clearProgress();
+                setConfirming(false);
+              }}
+              className="rounded-sm bg-wrong px-4 py-2 text-sm font-medium text-paper transition-opacity hover:opacity-90"
+            >
+              Delete everything
+            </button>
+            <button
+              onClick={() => setConfirming(false)}
+              className="px-1 text-sm text-ink-soft transition-colors hover:text-ink"
+            >
+              Keep it
+            </button>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

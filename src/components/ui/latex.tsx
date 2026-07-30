@@ -1,34 +1,23 @@
-
-'use client';
-
 import { cn } from '@/lib/utils';
-import { useEffect, useRef } from 'react';
-import katex from 'katex';
+import { renderMath } from '@/lib/render-math';
 
-export const Latex = ({
+/**
+ * Renders inline and display math at render time rather than in an effect, so
+ * the raw "$...$" source is never painted first.
+ *
+ * `content` comes from the question bank and the lesson files, which are part
+ * of this repository — not user input.
+ */
+export function Latex({
   content,
   className,
+  as: Tag = 'span',
 }: {
   content: string;
   className?: string;
-}) => {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      const renderedHtml = content.replace(/\$\$([^$]+)\$\$/g, (match, math) => {
-        return katex.renderToString(math, { displayMode: true, throwOnError: false });
-      }).replace(/\$([^$]+)\$/g, (match, math) => {
-        return katex.renderToString(math, { displayMode: false, throwOnError: false });
-      });
-      ref.current.innerHTML = renderedHtml;
-    }
-  }, [content]);
-
+  as?: 'span' | 'div';
+}) {
   return (
-    <div
-      ref={ref}
-      className={cn('prose prose-sm dark:prose-invert max-w-none', className)}
-    />
+    <Tag className={cn(className)} dangerouslySetInnerHTML={{ __html: renderMath(content) }} />
   );
-};
+}

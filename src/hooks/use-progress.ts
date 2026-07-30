@@ -1,142 +1,183 @@
-
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import type { Progress, TopicProgress, TopicProgressSet, Question } from '@/lib/types';
-import { useSettings } from './use-settings';
+import { useCallback, useEffect, useState } from 'react';
+import type { Progress, SessionRecord, TopicProgress, TopicStatus } from '@/lib/types';
 
 const STORAGE_KEY = 'number-sense-tutor-progress';
+const SCHEMA_VERSION = 2;
 
-const createDefaultTopicProgress = (): TopicProgress => ({
+export const emptyTopicProgress = (): TopicProgress => ({
   overall: { attempted: 0, correct: 0 },
   currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
   completedSets: 0,
-  currentQuestion: null,
+  seenQuestionIds: [],
 });
 
-const DEFAULT_PROGRESS: Progress = {
-  topics: {},
-};
+const EMPTY: Progress = { v: SCHEMA_VERSION, topics: {}, history: [] };
 
-export const useProgress = () => {
-  const { settings } = useSettings();
+/**
+ * Migrate a v1 payload. The original stored no version and no seen-question
+ * list, and its completedSets counts were inflated by a double increment, so
+ * they are not carried forward — attempts and correct counts are.
+ */
+function migrate(raw: unknown): Progress {
+  if (!raw || typeof raw !== 'object') return EMPTY;
+  const data = raw as Partial<Progress> & { topics?: Record<string, Partial<TopicProgress>> };
+  if (data.v === SCHEMA_VERSION && data.topics) {
+    return {
+      v: SCHEMA_VERSION,
+      topics: data.topics as Record<string, TopicProgress>,
+      history: data.history ?? [],
+    };
+  }
+  const topics: Record<string, TopicProgress> = {};
+  for (const [id, t] of Object.entries(data.topics ?? {})) {
+    topics[id] = {
+      overall: { attempted: t.overall?.attempted ?? 0, correct: t.overall?.correct ?? 0 },
+      currentSet: t.currentSet ?? { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
+      completedSets: 0,
+      seenQuestionIds: [],
+    };
+  }
+  return { v: SCHEMA_VERSION, topics, history: [] };
+}
+
+export function useProgress() {
   const [progress, setProgress] = useState<Progress | null>(null);
 
   useEffect(() => {
     try {
       const item = window.localStorage.getItem(STORAGE_KEY);
-      if (item) {
-        setProgress(JSON.parse(item));
-      } else {
-        setProgress(DEFAULT_PROGRESS);
-      }
-    } catch (error) {
-      console.warn(`Error reading localStorage key “${STORAGE_KEY}”:`, error);
-      setProgress(DEFAULT_PROGRESS);
+      setProgress(item ? migrate(JSON.parse(item)) : EMPTY);
+    } catch {
+      setProgress(EMPTY);
     }
   }, []);
 
-  const saveProgress = useCallback((newProgress: Progress) => {
+  const save = useCallback((next: Progress) => {
+    setProgress(next);
     try {
-      setProgress(newProgress);
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(newProgress));
-    } catch (error) {
-      console.warn(`Error setting localStorage key “${STORAGE_KEY}”:`, error);
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      // Storage full or blocked — keep the in-memory copy and carry on.
     }
   }, []);
 
-  const startNewSet = useCallback((topicId: string) => {
-    if (!progress) return;
-    
-    const topicProgress = progress.topics[topicId] || createDefaultTopicProgress();
+  const getTopicProgress = useCallback(
+    (topicId: string): TopicProgress => progress?.topics[topicId] ?? emptyTopicProgress(),
+    [progress]
+  );
 
-    const newProgress: Progress = {
-        ...progress,
+  /** Record one answer. Nothing here touches completedSets. */
+  const recordAnswer = useCallback(
+    (topicId: string, args: { questionId: number; isCorrect: boolean; timeTaken: number }) => {
+      const current = progress ?? EMPTY;
+      const t = current.topics[topicId] ?? emptyTopicProgress();
+      const seen = t.seenQuestionIds.includes(args.questionId)
+        ? t.seenQuestionIds
+        : [...t.seenQuestionIds, args.questionId];
+
+      save({
+        ...current,
         topics: {
-            ...progress.topics,
-            [topicId]: {
-                ...topicProgress,
-                currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
-                currentQuestion: null,
-            }
-        }
-    };
-    if (topicProgress.currentSet.questionsAttempted >= settings.questionsPerSet) {
-        newProgress.topics[topicId].completedSets += 1;
-    }
-    saveProgress(newProgress);
-  }, [progress, saveProgress, settings.questionsPerSet]);
-
-  const setCurrentQuestion = useCallback((topicId: string, question: Question | null) => {
-    if (!progress) return;
-    
-    const topicProgress = progress.topics[topicId] || createDefaultTopicProgress();
-
-    const newProgress: Progress = {
-        ...progress,
-        topics: {
-            ...progress.topics,
-            [topicId]: {
-                ...topicProgress,
-                currentQuestion: question,
-            }
-        }
-    };
-    saveProgress(newProgress);
-  }, [progress, saveProgress]);
-
-  const updateTopicProgress = useCallback((topicId: string, { isCorrect, timeTaken }: { isCorrect: boolean, timeTaken: number }): TopicProgress => {
-    if (!progress) return createDefaultTopicProgress();
-
-    const currentTopicProgress = progress.topics[topicId] || createDefaultTopicProgress();
-    
-    const newCurrentSet: TopicProgressSet = {
-        questionsAttempted: currentTopicProgress.currentSet.questionsAttempted + 1,
-        questionsCorrect: currentTopicProgress.currentSet.questionsCorrect + (isCorrect ? 1 : 0),
-        totalTime: currentTopicProgress.currentSet.totalTime + timeTaken,
-    };
-
-    let newCompletedSets = currentTopicProgress.completedSets;
-    if (newCurrentSet.questionsAttempted >= settings.questionsPerSet) {
-        newCompletedSets += 1;
-    }
-
-    const updatedTopicProgress: TopicProgress = {
-        ...currentTopicProgress,
-        overall: {
-            attempted: currentTopicProgress.overall.attempted + 1,
-            correct: currentTopicProgress.overall.correct + (isCorrect ? 1 : 0),
+          ...current.topics,
+          [topicId]: {
+            overall: {
+              attempted: t.overall.attempted + 1,
+              correct: t.overall.correct + (args.isCorrect ? 1 : 0),
+            },
+            currentSet: {
+              questionsAttempted: t.currentSet.questionsAttempted + 1,
+              questionsCorrect: t.currentSet.questionsCorrect + (args.isCorrect ? 1 : 0),
+              totalTime: t.currentSet.totalTime + args.timeTaken,
+            },
+            completedSets: t.completedSets,
+            seenQuestionIds: seen,
+          },
         },
-        currentSet: newCurrentSet,
-        completedSets: newCompletedSets,
-        currentQuestion: null,
-    };
+      });
+    },
+    [progress, save]
+  );
 
-    const newProgress: Progress = {
-      ...progress,
-      topics: {
-        ...progress.topics,
-        [topicId]: updatedTopicProgress,
-      },
-    };
-    saveProgress(newProgress);
-    return updatedTopicProgress;
-  }, [progress, saveProgress, settings.questionsPerSet]);
+  /** Close out a finished set: bump the counter once and log it to history. */
+  const completeSet = useCallback(
+    (topicId: string) => {
+      const current = progress ?? EMPTY;
+      const t = current.topics[topicId] ?? emptyTopicProgress();
+      if (t.currentSet.questionsAttempted === 0) return;
 
-  const getTopicProgress = useCallback((topicId: string): TopicProgress => {
-    return progress?.topics[topicId] || createDefaultTopicProgress();
-  }, [progress]);
-  
-  const clearProgress = useCallback(() => {
-    saveProgress(DEFAULT_PROGRESS);
-  }, [saveProgress]);
+      const record: SessionRecord = {
+        date: new Date().toISOString(),
+        topicId,
+        attempted: t.currentSet.questionsAttempted,
+        correct: t.currentSet.questionsCorrect,
+        totalTime: t.currentSet.totalTime,
+      };
+
+      save({
+        ...current,
+        topics: {
+          ...current.topics,
+          [topicId]: {
+            ...t,
+            completedSets: t.completedSets + 1,
+            currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
+          },
+        },
+        history: [...current.history, record].slice(-500),
+      });
+    },
+    [progress, save]
+  );
+
+  /** Discard an unfinished set without counting it. */
+  const resetCurrentSet = useCallback(
+    (topicId: string) => {
+      const current = progress ?? EMPTY;
+      const t = current.topics[topicId] ?? emptyTopicProgress();
+      save({
+        ...current,
+        topics: {
+          ...current.topics,
+          [topicId]: {
+            ...t,
+            currentSet: { questionsAttempted: 0, questionsCorrect: 0, totalTime: 0 },
+          },
+        },
+      });
+    },
+    [progress, save]
+  );
+
+  const clearProgress = useCallback(() => save(EMPTY), [save]);
 
   return {
-    progress: progress ?? DEFAULT_PROGRESS,
+    progress: progress ?? EMPTY,
+    loaded: progress !== null,
     getTopicProgress,
-    updateTopicProgress,
+    recordAnswer,
+    completeSet,
+    resetCurrentSet,
     clearProgress,
-    startNewSet,
-    setCurrentQuestion
   };
-};
+}
+
+/**
+ * A topic counts as completed only once every question in it has been seen and
+ * overall accuracy is at least 80%. The original marked a 250-question topic
+ * "Completed" after a single set of ten.
+ */
+export function topicStatus(p: TopicProgress, questionCount: number): TopicStatus {
+  if (p.overall.attempted === 0) return 'Not Started';
+  const seenAll = questionCount > 0 && p.seenQuestionIds.length >= questionCount;
+  const accuracy = p.overall.correct / p.overall.attempted;
+  if (seenAll && accuracy >= 0.8) return 'Completed';
+  return 'In Progress';
+}
+
+/** How far through the topic's own material you are, 0-100. */
+export function topicCoverage(p: TopicProgress, questionCount: number): number {
+  if (!questionCount) return 0;
+  return Math.min(100, Math.round((p.seenQuestionIds.length / questionCount) * 100));
+}
