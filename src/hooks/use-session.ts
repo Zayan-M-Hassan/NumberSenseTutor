@@ -32,13 +32,18 @@ function shuffle<T>(items: T[], seed: number): T[] {
   return out;
 }
 
+/**
+ * Draw a set: unseen questions first in shuffled order, topped up from the
+ * least recently seen. A size of 0 means endless — take the whole topic, which
+ * at 1,000 questions outlasts any sitting.
+ */
 export function buildSet(questions: Question[], seenIds: number[], size: number, seed: number): number[] {
   const seen = new Set(seenIds);
   const unseen = questions.filter((q) => !seen.has(q.id));
   const already = questions.filter((q) => seen.has(q.id));
-  // Unseen first, in shuffled order; top up from previously seen if needed.
   const pool = [...shuffle(unseen, seed), ...shuffle(already, seed + 7)];
-  return pool.slice(0, Math.min(size, pool.length)).map((q) => q.id);
+  const take = size > 0 ? Math.min(size, pool.length) : pool.length;
+  return pool.slice(0, take).map((q) => q.id);
 }
 
 export function useSession(topicId: string, questions: Question[], size: number) {
@@ -97,19 +102,28 @@ export function useSession(topicId: string, questions: Question[], size: number)
     persist({ ...session, index: session.index + 1 });
   }, [persist, session]);
 
+  /** End an endless set early, or bail out of a fixed one. */
+  const stop = useCallback(() => {
+    if (!session) return;
+    persist({ ...session, index: session.ids.length });
+  }, [persist, session]);
+
   const finish = useCallback(() => persist(null), [persist]);
 
   const current = session && session.index < session.ids.length ? byId.get(session.ids[session.index]) ?? null : null;
   const done = !!session && session.index >= session.ids.length;
+  const endless = size <= 0;
 
   return {
     session,
     current,
     done,
+    endless,
     position: session ? Math.min(session.index + 1, session.ids.length) : 0,
     total: session?.ids.length ?? size,
     start,
     advance,
+    stop,
     finish,
   };
 }

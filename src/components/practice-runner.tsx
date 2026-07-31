@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import type { Question } from '@/lib/types';
+import type { Question, ReviewEntry } from '@/lib/types';
 import { gradeAnswer } from '@/lib/answer';
 import { fetchQuestions } from '@/data/topics';
 import { useProgress } from '@/hooks/use-progress';
@@ -20,6 +20,11 @@ type Verdict = {
   reason?: string;
   response: string;
 };
+
+/** How long a wrong answer stays up before auto-advance moves on. */
+const READ_ANSWER_MS = 2200;
+/** A correct answer needs only a beat. */
+const CORRECT_MS = 320;
 
 /** Why an answer was rejected, said plainly. */
 function rejectionNote(reason: string | undefined): string | null {
@@ -56,9 +61,16 @@ export function PracticeRunner({
   const [value, setValue] = useState('');
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [elapsed, setElapsed] = useState(0);
-  const [summary, setSummary] = useState<{ attempted: number; correct: number; totalTime: number } | null>(null);
+  const [review, setReview] = useState<ReviewEntry[]>([]);
+  const [summary, setSummary] = useState<{
+    attempted: number;
+    correct: number;
+    totalTime: number;
+  } | null>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const startedAt = useRef<number>(Date.now());
+  const advanceTimer = useRef<number | null>(null);
 
   // The question bank is a static asset, not part of this page's payload.
   useEffect(() => {
@@ -78,11 +90,13 @@ export function PracticeRunner({
   const question: Question | null = session.current;
   const starred = question?.kind === 'approximate';
 
+  // Start a set once the bank has loaded. Not while the summary is up: the
+  // next set is drawn when you ask for one, so it reflects what you just saw.
   useEffect(() => {
-    if (!loaded || !questions || session.session) return;
+    if (!loaded || !questions || session.session || summary) return;
     session.start(getTopicProgress(topicId).seenQuestionIds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded, questions, session.session]);
+  }, [loaded, questions, session.session, summary]);
 
   useEffect(() => {
     if (!question || verdict) return;
@@ -96,7 +110,19 @@ export function PracticeRunner({
     if (question && !verdict) inputRef.current?.focus();
   }, [question, verdict]);
 
+  // Any pending auto-advance is cancelled if the component goes away.
+  useEffect(
+    () => () => {
+      if (advanceTimer.current) window.clearTimeout(advanceTimer.current);
+    },
+    []
+  );
+
   const advance = useCallback(() => {
+    if (advanceTimer.current) {
+      window.clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
     setVerdict(null);
     setValue('');
     session.advance();
@@ -132,8 +158,33 @@ export function PracticeRunner({
     });
 
     recordAnswer(topicId, { questionId: question.id, isCorrect: result.correct, timeTaken });
+    setReview((prev) => [
+      ...prev,
+      {
+        questionId: question.id,
+        text: question.text,
+        response: value,
+        expected: result.expected,
+        correct: result.correct,
+        timeTaken,
+        starred: question.kind === 'approximate',
+      },
+    ]);
     setVerdict({ ...result, response: value });
-    if (result.correct) window.setTimeout(advance, 320);
+
+    // Correct answers always move on. Wrong ones wait for you unless you have
+    // asked them not to — the pause is the part where you read the answer.
+    if (result.correct) {
+      advanceTimer.current = window.setTimeout(advance, CORRECT_MS);
+    } else if (settings.autoAdvance) {
+      advanceTimer.current = window.setTimeout(advance, READ_ANSWER_MS);
+    }
+  };
+
+  const restart = () => {
+    setSummary(null);
+    setReview([]);
+    session.start(getTopicProgress(topicId).seenQuestionIds);
   };
 
   if (loadError) {
@@ -154,10 +205,8 @@ export function PracticeRunner({
         topicId={topicId}
         topicName={topicName}
         stats={summary}
-        onAgain={() => {
-          setSummary(null);
-          session.start(getTopicProgress(topicId).seenQuestionIds);
-        }}
+        review={review}
+        onAgain={restart}
       />
     );
   }
@@ -185,7 +234,7 @@ export function PracticeRunner({
           {topicName}
         </Link>
         <span className="tabular font-mono text-xs uppercase tracking-wider text-ink-faint">
-          {session.position} / {session.total}
+          {session.endless ? session.position : `${session.position} / ${session.total}`}
         </span>
       </div>
 
@@ -252,7 +301,7 @@ export function PracticeRunner({
           )}
         </div>
 
-        <div className="mt-2 flex items-center justify-between gap-4">
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-3">
           <button
             type="submit"
             className={cn(
@@ -265,9 +314,17 @@ export function PracticeRunner({
             {verdict ? 'Next' : 'Answer'}
           </button>
 
+          <button
+            type="button"
+            onClick={session.stop}
+            className="rounded-sm border border-rule-strong px-4 py-2 text-sm font-medium text-ink-soft transition-colors hover:border-ink hover:text-ink"
+          >
+            {session.endless ? 'Stop and review' : 'End set early'}
+          </button>
+
           <Link
             href={`/topics/${topicId}`}
-            className="inline-flex items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-ink"
+            className="ml-auto inline-flex items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-ink"
           >
             <BookOpen className="h-3.5 w-3.5" />
             Show the trick
@@ -275,7 +332,9 @@ export function PracticeRunner({
         </div>
 
         <p className="mt-6 font-mono text-xs text-ink-faint">
-          Press Enter to answer, Enter again to continue.
+          {settings.autoAdvance
+            ? 'Enter to answer. Questions advance on their own.'
+            : 'Press Enter to answer, Enter again to continue.'}
         </p>
       </form>
     </div>

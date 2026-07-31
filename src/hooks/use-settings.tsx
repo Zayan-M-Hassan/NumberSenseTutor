@@ -6,9 +6,13 @@ import type { Settings } from '@/lib/types';
 const STORAGE_KEY = 'number-sense-tutor-settings';
 
 const DEFAULTS: Settings = {
-  questionsPerSet: 10,
+  questionsPerSet: 20,
+  autoAdvance: false,
   theme: 'system',
 };
+
+/** A set size of 0 runs until you stop it. */
+export const ENDLESS = 0;
 
 type SettingsContextType = {
   settings: Settings;

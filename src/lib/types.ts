@@ -102,8 +102,24 @@ export type Progress = {
 };
 
 export type Settings = {
+  /** Questions in a practice set. 0 means endless — drill until you stop. */
   questionsPerSet: number;
+  /** Move to the next question on its own after a wrong answer. */
+  autoAdvance: boolean;
   theme: 'light' | 'dark' | 'system';
+};
+
+/** One answered question, kept so a finished set can be reviewed. */
+export type ReviewEntry = {
+  questionId: number;
+  text: string;
+  /** What the contestant typed. Empty when the set ended mid-question. */
+  response: string;
+  /** The answer as the key would print it. */
+  expected: string;
+  correct: boolean;
+  timeTaken: number;
+  starred: boolean;
 };
 
 export type TopicStatus = 'Completed' | 'In Progress' | 'Not Started';

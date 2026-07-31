@@ -6,7 +6,14 @@ import { useSettings } from '@/hooks/use-settings';
 import { useProgress } from '@/hooks/use-progress';
 import { cn } from '@/lib/utils';
 
-const SET_SIZES = [5, 10, 20, 40, 80];
+/** 0 runs until you stop it. */
+const SET_SIZES: Array<{ value: number; label: string }> = [
+  { value: 10, label: '10' },
+  { value: 20, label: '20' },
+  { value: 40, label: '40' },
+  { value: 80, label: '80' },
+  { value: 0, label: 'Endless' },
+];
 const MODES = ['light', 'dark', 'system'] as const;
 
 export default function SettingsPage() {
@@ -27,23 +34,59 @@ export default function SettingsPage() {
         </h2>
         <p className="mt-2 text-sm text-ink-soft">
           A full contest paper is 80. Shorter sets are for drilling one trick.
+          Endless keeps going until you stop it.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          {SET_SIZES.map((n) => (
+          {SET_SIZES.map(({ value, label }) => (
             <button
-              key={n}
-              onClick={() => saveSettings({ questionsPerSet: n })}
-              aria-pressed={settings.questionsPerSet === n}
+              key={value}
+              onClick={() => saveSettings({ questionsPerSet: value })}
+              aria-pressed={settings.questionsPerSet === value}
               className={cn(
                 'tabular rounded-sm border px-4 py-2 font-mono text-sm transition-colors',
-                settings.questionsPerSet === n
+                settings.questionsPerSet === value
                   ? 'border-ink bg-ink text-paper'
                   : 'border-rule-strong text-ink-soft hover:border-ink hover:text-ink'
               )}
             >
-              {n}
+              {label}
             </button>
           ))}
+        </div>
+      </section>
+
+      <section className="mt-12">
+        <h2 className="font-mono text-xs uppercase tracking-[0.18em] text-ink-faint">
+          After a wrong answer
+        </h2>
+        <p className="mt-2 max-w-md text-sm text-ink-soft">
+          Correct answers always move straight on. This decides what happens when you miss one.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            onClick={() => saveSettings({ autoAdvance: false })}
+            aria-pressed={!settings.autoAdvance}
+            className={cn(
+              'rounded-sm border px-4 py-2 text-sm transition-colors',
+              !settings.autoAdvance
+                ? 'border-ink bg-ink text-paper'
+                : 'border-rule-strong text-ink-soft hover:border-ink hover:text-ink'
+            )}
+          >
+            Wait for me
+          </button>
+          <button
+            onClick={() => saveSettings({ autoAdvance: true })}
+            aria-pressed={settings.autoAdvance}
+            className={cn(
+              'rounded-sm border px-4 py-2 text-sm transition-colors',
+              settings.autoAdvance
+                ? 'border-ink bg-ink text-paper'
+                : 'border-rule-strong text-ink-soft hover:border-ink hover:text-ink'
+            )}
+          >
+            Move on automatically
+          </button>
         </div>
       </section>
 
