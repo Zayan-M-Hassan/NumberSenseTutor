@@ -8,13 +8,7 @@ import { useEffect, useRef, useState } from 'react';
  * rule under the numbers drains on a real 7.5-second loop, the exact budget you
  * get per question. You feel the tempo before you read a word about it.
  */
-export function PaceThesis({
-  topicCount,
-  questionCount,
-}: {
-  topicCount: number;
-  questionCount: number;
-}) {
+export function PaceThesis() {
   const [ratio, setRatio] = useState(0);
   const start = useRef(0);
 
@@ -51,16 +45,13 @@ export function PaceThesis({
         />
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+      <div className="mt-8 flex justify-center">
         <Link
           href="/exam"
           className="rounded-sm bg-ink px-5 py-2.5 text-sm font-medium text-paper transition-colors hover:bg-ink/85"
         >
           Take a full test
         </Link>
-        <span className="font-mono text-xs text-ink-faint">
-          {topicCount} topics &middot; {questionCount.toLocaleString()} questions
-        </span>
       </div>
     </section>
   );

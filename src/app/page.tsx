@@ -4,7 +4,6 @@ import { TopicIndex } from '@/components/topic-index';
 
 export default function Home() {
   const topics = getTopicIndex().filter((t) => !t.section && t.questionCount > 0);
-  const totalQuestions = topics.reduce((n, t) => n + t.questionCount, 0);
 
   const grouped = SECTIONS.map((s) => ({
     ...s,
@@ -13,7 +12,7 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-3xl px-5 pb-24">
-      <PaceThesis topicCount={topics.length} questionCount={totalQuestions} />
+      <PaceThesis />
       <TopicIndex sections={grouped} />
     </div>
   );
