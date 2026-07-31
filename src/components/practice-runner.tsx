@@ -92,11 +92,17 @@ export function PracticeRunner({
 
   // Start a set once the bank has loaded. Not while the summary is up: the
   // next set is drawn when you ask for one, so it reflects what you just saw.
+  //
+  // The deps are primitives on purpose. `questions` is a 1,000-element array,
+  // and putting it here makes React's dependency diagnostics stringify every
+  // entry.
+  const questionsReady = questions !== null;
+  const setInFlight = session.session !== null;
   useEffect(() => {
-    if (!loaded || !questions || session.session || summary) return;
+    if (!loaded || !questionsReady || setInFlight || summary !== null) return;
     session.start(getTopicProgress(topicId).seenQuestionIds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loaded, questions, session.session, summary]);
+  }, [loaded, questionsReady, setInFlight, summary !== null]);
 
   useEffect(() => {
     if (!question || verdict) return;
