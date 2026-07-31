@@ -51,12 +51,6 @@ export function PaceThesis({
         />
       </div>
 
-      <p className="mt-8 max-w-xl font-question text-lg leading-relaxed text-ink sm:text-xl">
-        That is the whole problem. No calculator, no scratch paper, no going back
-        — so the arithmetic has to be gone before you reach it. These are the
-        tricks that get you there.
-      </p>
-
       <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
         <Link
           href="/exam"
